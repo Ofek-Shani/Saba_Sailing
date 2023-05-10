@@ -13,7 +13,7 @@
     // Variables
     let sailAngle = 30 * Math.PI  / 180 ;
     let steeringAngle = 0;
-    let boatDirection = 0; //Math.PI/4; // Angle in radians
+    let boatDirection = Math.PI/2; //Math.PI/4; // Angle in radians
     let boatSpeed = 0; // Meters per second
     let windDirection = Math.PI/2; // Angle in radians
     let windSpeed = 30; // Meters per second
@@ -26,7 +26,7 @@
 function drawWind() {
     const arrowLength = windSpeed;
     const arrowAngle = windDirection; // Math.PI / 6;
-    const size = Math.max(canvas.width, canvas.height) /2 - 10;
+    const size = Math.max(canvas.width, canvas.height) /2 - 35;
 
     const arrowX1 = centerX - size * Math.cos(-arrowAngle);
     const arrowY1 = centerY - size * Math.sin(-arrowAngle); 
@@ -50,16 +50,21 @@ function drawWind() {
 }
 
 // Draw boat
-const pathData = `
+const pathData1 = `
 M 0.163116,4.11449 L 0.894806,2.84715 L 1.34703,1.45537 L 1.5,-0 L 1.34703,-1.45537 L 0.894806,-2.84715
     L 0.163116,-4.11449 L 0,-4.29565 L -0.163116,-4.11449 L -0.894806,-2.84715 L -1.34703,-1.45537 L -1.5,-0
-    L -1.34703,1.45537 L -0.894806,2.84715 L -0.163116,4.11449 L 0,4.29565 z
+    L -1.34703,1.45537 L -0.894806,2.84715 L -0.163116,4.11449 L 0,4.29565 L 0,5 z
+`;
+const pathData = `
+M 0.894806,2.84715 L 1.34703,1.45537 L 1.5,-0 L 1.34703,-1.45537 L 0.894806,-2.84715
+    L 0.163116,-4.11449 L 0,-4.29565 L -0.163116,-4.11449 L -0.894806,-2.84715 L -1.34703,-1.45537 L -1.5,-0
+    L -1.34703,1.45537 L -0.894806,2.84715  z
 `;
 
 function drawBoat() {
     ctx.save();
     ctx.scale(20.,20.);
-    ctx.rotate(boatDirection + Math.PI/2);
+    ctx.rotate(Math.PI/2-boatDirection);
     ctx.lineWidth = 0.1;
     const path = new Path2D(pathData);
     ctx.stroke(path);
@@ -82,11 +87,11 @@ function drawFullBoat() {
     const rudderX1 = boatX;
     x = -Math.PI/2 + steeringAngle
     const rudderX2 = rudderX1 + rudderLength * Math.cos(x);
-    const rudderY1 = boatY + boatLength/2;
+    const rudderY1 = boatY + boatLength/2 - 28;
     const rudderY2 = rudderY1 - rudderLength * Math.sin(x);
     ctx.beginPath();
     ctx.save();
-    ctx.rotate(boatDirection + Math.PI/2);
+    ctx.rotate(Math.PI/2-boatDirection);
     ctx.moveTo(sailX1, sailY1);
     ctx.lineTo(sailX2, sailY2);
     ctx.moveTo(fsailX1, fsailY1);
@@ -97,19 +102,32 @@ function drawFullBoat() {
     ctx.restore();
 }
     
+// Displaying data on screen methods:
 function X(w,v) {
     document.getElementById(w).value = (v/Math.PI * 180).toFixed(2);
 }
-const A = (v) => X('A',v);
-const B = (v) => X('B',v);
-const C = (v) => X('C',v);
+function Y(w,v) {
+    document.getElementById(w).value = v.toFixed(2);
+}
+const displayWindAngle = (v) => X('windAngle',v);
+const displayWindSpeed = (v) => Y('windSpeed',v/10);
+const displaySailAngle = (v) => X('sailAngle',v);
+const displaySteeringAngle = (v) => X('steeringAngle',v);
+const displayBoatDirection = (v) => X('boatDirection',v);
+const displayBoatSpeed = (v) => Y('boatSpeed',v);
+const displayWindBoatAngle = (v) => X('windBoatAngle',v);
+
 // Update boat direction and speed
+let boatIncrement = 0;
 function updateBoat() {
-    boatDirection = (boatDirection += 0.001)% (2*Math.PI);
+    boatDirection = (boatDirection += boatIncrement)% (2*Math.PI);
     // Compute angle between wind and boat direction
-    let windAngle = -(windDirection - boatDirection);
+    let windAngle = (windDirection - boatDirection);
     if (windAngle > Math.PI) windAngle = windAngle - 2*Math.PI;
-    A(windDirection); B(boatDirection); C(windAngle);
+    displayWindAngle(windDirection); 
+    displayWindSpeed(windSpeed);
+    displayBoatDirection(boatDirection); 
+    displayWindBoatAngle(windAngle);
     // Compute sail and rudder forces
     const sailForce = K * Math.cos(sailAngle + windAngle);
     const rudderForce = KW * Math.sin(steeringAngle) * (1 - Math.exp(-K * boatSpeed));
@@ -117,8 +135,11 @@ function updateBoat() {
     const acceleration = (sailForce + rudderForce) / M;
     // Update boat speed and direction
     boatSpeed += acceleration * DT;
+    displayBoatSpeed(boatSpeed);
+    ctx.restore();
+    ctx.save();
+    ctx.rotate(boatDirection);
     //boatDirection += boatSpeed * Math.sin(windAngle) / L * DT;
-    boat_speed_text.innerHTML = boatSpeed.toFixed(2);
 }
 
 // Update wind speed and direction
@@ -128,33 +149,78 @@ function updateWind() {
 
 // Update canvas
 function updateCanvas() {
+    displaySailAngle(sailAngle);
+    displaySteeringAngle(steeringAngle);
     ctx.clearRect(-canvas.width/2,-canvas.height/2, canvas.width, canvas.height);
     drawWind();
     drawFullBoat();
-    updateBoat();
     updateWind();
+    drawNESW(-boatDirection);
+    updateBoat();
+
 }
 
 let interval;
 function stopStart(button) {
-    if (button.value === "Stop") {
-        button.value = "Start";
-        button.style.backgroundColor = "green";
-        clearInterval(interval);
+    if (button.innerHTML === "Stop") {
+        button.innerHTML = "Resume";
+        button.style.backgroundColor = "lightgreen";
+        boatIncrement = 0;
     } else {
-        button.value = "Stop";
+        button.innerHTML = "Stop";
         button.style.backgroundColor = "pink";
-        interval = setInterval(updateCanvas, 1000/60);
+        // interval = setInterval(updateCanvas, 1000/60);
+        boatIncrement = 0.001;
     }
 }
+
+// Create scratch canvas for rotated letters
+const scratchCanvas = document.createElement('canvas');
+scratchCanvas.width = 50; // width of each letter
+scratchCanvas.height = 50; // height of each letter
+const scratchCtx = scratchCanvas.getContext('2d');
+scratchCtx.translate(scratchCanvas.width / 2, scratchCanvas.height / 2);
+scratchCtx.font = '30px Arial';
+scratchCtx.textAlign = 'center';
+scratchCtx.textBaseline = 'middle';
+scratchCtx.save();
+
+
+
+function drawNESW(r) {
+    r = (r || Math.PI/4) + Math.PI/2;
+    // Draw rotated letters on scratch canvas and copy to main canvas
+    const letterPositions = [
+        { l: "N", x: 0, y: -canvas.height/2 + 20 }, // N
+        { l: "E", x: canvas.width/2 - 20, y: 0 }, // E
+        { l: "S", x: 0, y: canvas.height/2 -20 }, // S
+        { l: "W", x: -canvas.width/2 + 20, y: 0 } // W
+    ];
+
+    letterPositions.forEach((position) => {
+        scratchCtx.clearRect(-scratchCanvas.width/2, -scratchCanvas.height/2, scratchCanvas.width, scratchCanvas.height);
+        scratchCtx.rotate(r);
+        scratchCtx.fillText(position.l, 0, 0);
+        ctx.drawImage(scratchCanvas, position.x - scratchCanvas.width/2, position.y - scratchCanvas.height/2);
+        scratchCtx.restore();
+        scratchCtx.save();
+    });
+    ctx.beginPath();
+    ctx.setLineDash([5, 5]); // Set line dash pattern
+    ctx.arc(0, 0, canvas.width/2 - 5, 0, 2 * Math.PI); // Draw circle
+    ctx.stroke();
+}
+
 function init() {
     // Canvas setup
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     ctx.translate(canvas.width / 2, canvas.height / 2);
-    // ctx.rotate(-Math.PI/2);
     centerX = 0; // canvas.width / 2;
     centerY = 0; // canvas.height / 2;
+    ctx.rotate(-Math.PI/2);
+    ctx.save();
+    ctx.rotate(boatDirection);
     boat_speed_text = document.getElementById('boat-speed-text');
 
     // Event listeners for sliders

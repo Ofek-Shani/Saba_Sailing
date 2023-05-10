@@ -11,27 +11,35 @@
 </head>
 <script src="sailboat.js"></script>
 <body onload="init()">
+    <div style="margin:20px">
 	<h1>Sailboat Simulator</h1>
 	<p>Use the sliders to control the sail angle and steering angle.</p>
     <table>
+        <tr><td>Boat Speed:</td><td><input readonly type="text" size="6" id="boatSpeed"></td>
+            <td>Stop/Res boat rot.:</td>
+            <td><button style="height:30px; background-color:lightGreen" id="pause" onclick="stopStart(this)">Resume</button></td>
+        <tr><td>Boat Direction:</td><td><input readonly type="text" size="6" id="boatDirection"></td>
+                <td>Wind-Boat Angle:</td><td><input readonly type="text" size="6" id="windBoatAngle"></td>
+        </tr>
         <tr>
             <td><label for="sail-angle">Sail angle:</label></td>
             <td><label for="steering-angle">Steering angle:</label></td>
             <td><label for="wind-direction">Wind Direction:</label></td>
             <td><label for="wind-speed">Wind Speed:</label></td>
         </tr>
-        <tr>
             <td><input type="range" id="sail-angle" min="-60" max="60" value="30"></td>
             <td><input type="range" id="steering-angle" min="-45" max="45" value="0"></td>
             <td><input type="range" id="wind-direction" min="0" max="360" value="90"></td>
             <td><input type="range" id="wind-speed" min="0" max="10" value="3"></td>
-        </tr>`
+        </tr>
+        <tr>
+            <td><input readonly type="text" size="6" id="sailAngle"></td>
+            <td><input readonly type="text" size="6" id="steeringAngle"></td>
+            <td><input readonly type="text" size="6" id="windAngle"></td>
+            <td><input readonly type="text" size="6" id="windSpeed"></td>
+        </tr>
     </table>
 	<canvas id="canvas" width="500" height="500"></canvas><br>
-    <input readonly type="text" id="A" value="0">A</input><br>
-    <input readonly type="text" id="B" value="0">B</input><br>
-    <input readonly type="text" id="C" value="0">C<br>
-    <input type="button" id="pause" value="Stop" onclick="stopStart(this)" style="background-color:pink"/><br>
-    <br></b><input readonly type="text" id="boat-speed-text" value="0">
+</div>
 </body>
 </html>
