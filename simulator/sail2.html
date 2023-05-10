@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sailboat Simulator</title>
+	<style>
+		canvas {
+			border: 1px solid black;
+			background-color: #87CEFA;
+		}
+	</style>
+</head>
+<script src="sailboat.js"></script>
+<body onload="init()">
+	<h1>Sailboat Simulator</h1>
+	<p>Use the sliders to control the sail angle and steering angle.</p>
+    <table>
+        <tr>
+            <td><label for="sail-angle">Sail angle:</label></td>
+            <td><label for="steering-angle">Steering angle:</label></td>
+            <td><label for="wind-direction">Wind Direction:</label></td>
+            <td><label for="wind-speed">Wind Speed:</label></td>
+        </tr>
+        <tr>
+            <td><input type="range" id="sail-angle" min="-60" max="60" value="30"></td>
+            <td><input type="range" id="steering-angle" min="-45" max="45" value="0"></td>
+            <td><input type="range" id="wind-direction" min="0" max="360" value="90"></td>
+            <td><input type="range" id="wind-speed" min="0" max="10" value="3"></td>
+        </tr>`
+    </table>
+	<canvas id="canvas" width="500" height="500"></canvas><br>
+    <input readonly type="text" id="A" value="0">A</input><br>
+    <input readonly type="text" id="B" value="0">B</input><br>
+    <input readonly type="text" id="C" value="0">C<br>
+    <input type="button" id="pause" value="Stop" onclick="stopStart(this)" style="background-color:pink"/><br>
+    <br></b><input readonly type="text" id="boat-speed-text" value="0">
+</body>
+</html>
