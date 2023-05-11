@@ -1,9 +1,11 @@
     // Constants
-    const K = 0.1; // Constant for boat speed calculation
-    const KW = 1; // Constant for angular change rate calculation
-    const M = 200; // Boat mass in kg
+    const KN = 10; // Constant for normal sail power
+    const KT = 10; // Constant for tangential sail power
+    const KW = 10; // Constant for angular change rate calculation
+    const M = 100; // Boat mass in kg
     const L = 5; // Boat length in meters
     const DT = 1/60; // Time interval in seconds
+    const R = 0.5; // Water resistance constant
     const boatLength = 170;
     const mastPosition = 20;
     const sailLength = 110;
@@ -116,6 +118,9 @@ const displaySteeringAngle = (v) => X('steeringAngle',v);
 const displayBoatDirection = (v) => X('boatDirection',v);
 const displayBoatSpeed = (v) => Y('boatSpeed',v);
 const displayWindBoatAngle = (v) => X('windBoatAngle',v);
+const displayWindSailAngle = (v) => X('windSailAngle',v);
+const displaySailForce = (v) => Y('sailForce',v);
+const displayWaterResistance = (v) => Y('waterResistance',v);
 
 // Update boat direction and speed
 let boatIncrement = 0;
@@ -124,15 +129,21 @@ function updateBoat() {
     // Compute angle between wind and boat direction
     let windAngle = (windDirection - boatDirection);
     if (windAngle > Math.PI) windAngle = windAngle - 2*Math.PI;
+    let windSailAngle = (sailAngle < 0 ? -1:1) * (sailAngle - windAngle);
+    if (windSailAngle > Math.PI) windSailAngle = windSailAngle - 2*Math.PI;
+    displayWindSailAngle(windSailAngle);
     displayWindAngle(windDirection); 
     displayWindSpeed(windSpeed);
     displayBoatDirection(boatDirection); 
     displayWindBoatAngle(windAngle);
     // Compute sail and rudder forces
-    const sailForce = K * Math.cos(sailAngle + windAngle);
-    const rudderForce = KW * Math.sin(steeringAngle) * (1 - Math.exp(-K * boatSpeed));
+    const sailForce = KN * Math.abs(Math.cos(windSailAngle)) + KT * Math.abs(Math.sin(windSailAngle));
+    const waterResistance = R * boatSpeed * boatSpeed;
+    displaySailForce(sailForce);
+    displayWaterResistance(waterResistance);
+    const rudderForce = KW * Math.sin(steeringAngle) * boatSpeed / 10;
     // Compute boat acceleration
-    const acceleration = (sailForce + rudderForce) / M;
+    const acceleration = (sailForce - rudderForce - waterResistance) / M;
     // Update boat speed and direction
     boatSpeed += acceleration * DT;
     displayBoatSpeed(boatSpeed);
@@ -208,6 +219,14 @@ function drawNESW(r) {
     ctx.beginPath();
     ctx.setLineDash([5, 5]); // Set line dash pattern
     ctx.arc(0, 0, canvas.width/2 - 5, 0, 2 * Math.PI); // Draw circle
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.setLineDash([5,0]); // Restore line to solid
+    let s = Math.min(canvas.width/2, canvas.height/2) - 20;
+    for (let x=Math.PI/4; x<2*Math.PI; x+=Math.PI/2) {
+        ctx.moveTo(s * Math.cos(x), -s * Math.sin(x));
+        ctx.lineTo((s+15) * Math.cos(x), -(s+15) * Math.sin(x));
+    }
     ctx.stroke();
 }
 
