@@ -4,7 +4,7 @@
     const KW = 1; // Constant for angular change rate calculation
     const M = 10; // Boat mass in kg
     const L = 5; // Boat length in meters
-    const KB = 1; // factorfor wind effect on the boat body;
+    const KB = 0.5; // factorfor wind effect on the boat body;
     let DT = 1/60; // Time interval in seconds, but it is acrually compured in updateBoat()
     const R = [-1.0,0,0.5]; // Water resistance constant [backward, still, forward]
     const boatLength = 170;
@@ -164,7 +164,10 @@ function updateBoat() {
     const waterResistance = -R[Math.sign(boatSpeed)+1] * boatSpeed * boatSpeed;
     displayForce(fwdForce, driftForce);
     displayWaterResistance(waterResistance);
-    const rudderForce = -KW * Math.abs(Math.sin(steeringAngle)) * boatSpeed;
+    const steeringStep = (Math.PI/4/5); // 5 steps in steering from straight to 45 degrees. 
+    // none linear steering factor. Slows down if above 45 degrees.
+    const steeringFactor = [0,0.1,0.3,0.7,1.25, 0.8, 0.5, 0.1, 0][Math.min(8, Math.round(Math.abs(steeringAngle)/steeringStep))]; 
+    const rudderForce = -KW * Math.abs(Math.sin(steeringAngle)) * boatSpeed * steeringFactor;
     const rudderTorque = -rudderForce * Math.sign(steeringAngle); // * Math.cos(steeringAngle);
 
     displayRudderTorque(rudderTorque);
@@ -179,10 +182,12 @@ function updateBoat() {
     displayBoatSpeed(boatSpeed, boatDrift);
     boatPosition.x += boatSpeed * Math.cos(boatDirection) * DT + boatDrift * Math.sin(boatDirection) * DT;
     boatPosition.y += boatSpeed * Math.sin(boatDirection) * DT + boatDrift * Math.cos(boatDirection) * DT;
-    displayBoatPosition(boatPosition.x, boatPosition.y);
+    displayBoatPosition(boatPosition.y, boatPosition.x);
     ctx.restore();
     ctx.save();
     ctx.rotate(boatDirection);
+
+    drawCanvas2(boatPosition, boatDirection, [10., 10.], [canvas.width/2, canvas.height/2]); 
     //boatDirection += boatSpeed * Math.sin(windAngle) / L * DT;
 }
 
@@ -195,13 +200,13 @@ function updateWind() {
 function updateCanvas() {
     displaySailAngle(sailAngle);
     displaySteeringAngle(steeringAngle);
-    ctx.clearRect(-canvas.width/2,-canvas.height/2, canvas.width, canvas.height);
+    ctx.clearRect(minx, miny, maxx-minx, maxy-miny); //-canvas.width/2,-canvas.height/2, canvas.width, canvas.height);
     drawWind();
     drawFullBoat();
     updateWind();
-    drawNESW(-boatDirection);
+    drawNESW(-boatDirection, ctx);
+    drawMainGrid(-boatDirection);
     updateBoat();
-
 }
 
 let interval;
@@ -230,10 +235,32 @@ scratchCtx.textBaseline = 'middle';
 scratchCtx.save();
 
 
+function drawMainGrid(r) {
+        r = (r === undefined ? Math.PI/4 : r) + Math.PI/2;
+        // draw grid
+        ctx.strokeStyle = 'blue';
+        ctx.setLineDash([10,5]);
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        const round = (p, s) => p - p % s
+        let x= round(boatPosition.x, canvas.width) - boatPosition.x;  
+        let y= round(-boatPosition.y, canvas.height) + boatPosition.y;  
+        let minx = x - canvas.width*3/2, maxx = x + canvas.width*3/2,
+            miny = y - canvas.height*3/2, maxy = y + canvas.height*3/2;
+        for (let x= minx + canvas.width/2; x < maxx; x += canvas.width/2) {
+        for (let y= miny + canvas.width/2; y < maxy; y += canvas.height/2) {
+                ctx.moveTo(x, miny);
+                ctx.lineTo(x, maxy);
+                ctx.moveTo(minx, y);
+                ctx.lineTo(maxx, y);
+            }
+        }
+        ctx.stroke();    
+}
 // draw NESW letters and circle and lines marking 4 additional directions, and cross-lines to represent water
 // relative to boat as it moves.
-function drawNESW(r) {
-    r = (r || Math.PI/4) + Math.PI/2;
+function drawNESW(r, ctx) {
+    r = (r === undefined ? Math.PI/4 : r) + Math.PI/2;
     // Draw rotated letters on scratch canvas and copy to main canvas
     const letterPositions = [
         { l: "N", x: 0, y: -canvas.height/2 + 20 }, // N
@@ -250,33 +277,81 @@ function drawNESW(r) {
         scratchCtx.restore();
         scratchCtx.save();
     });
+    // Draw circle and lines
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([10, 5]); // Set line dash pattern
     ctx.beginPath();
-    ctx.setLineDash([5, 5]); // Set line dash pattern
     ctx.arc(0, 0, canvas.width/2 - 5, 0, 2 * Math.PI); // Draw circle
     ctx.stroke();
-    ctx.beginPath();
+
     ctx.setLineDash([5,0]); // Restore line to solid
+    ctx.beginPath();
     let s = Math.min(canvas.width/2, canvas.height/2) - 20;
     for (let x=Math.PI/4; x<2*Math.PI; x+=Math.PI/2) {
         ctx.moveTo(s * Math.cos(x), -s * Math.sin(x));
         ctx.lineTo((s+15) * Math.cos(x), -(s+15) * Math.sin(x));
     }
     ctx.stroke();
-    ctx.beginPath();
-    ctx.setLineDash([4,10]);
-    ctx.moveTo((-boatPosition.x + canvas.width/2) % canvas.width - canvas.width/2, -canvas.height/2);
-    ctx.lineTo((-boatPosition.x + canvas.width/2) % canvas.width - canvas.width/2, canvas.height/2);
-    let x = (boatPosition.y + canvas.height/2) % canvas.height - canvas.height/2;
-    ctx.moveTo(-canvas.width/2, x); //(boatPosition.y + canvas.height/2) % canvas.height - canvas.height/2);
-    ctx.lineTo(canvas.width/2, (boatPosition.y + canvas.height/2) % canvas.height - canvas.height/2);
-    ctx.stroke();
 }
 
+let ctx2, canvas2;
+function initCanvas2() {
+    // Get a reference to the canvas element
+    canvas2 = document.getElementById("canvas2");
+    // Get the 2D drawing context for the canvas
+    ctx2 = canvas2.getContext("2d");
+
+    ctx2.translate(canvas2.width / 2, canvas2.height / 2);
+}
+
+function drawCanvas2(position, direction, factor, gapSize) {  // position has x: and y: attributes, factor is panning factor.
+    ctx2.clearRect(-canvas2.width/2,-canvas2.height/2, canvas2.width, canvas2.height); //, ctx.width, ctx.height);
+    // Draw the grid lines
+    ctx2.strokeStyle = "blue"; // set the color of the grid lines
+    ctx2.lineWidth = 0.5
+    ctx2.setLineDash([3, 5]); // set the line dash pattern to create dotted lines
+    for (var i = -canvas2.width / 2 + gapSize[0] / factor[0]; i < canvas2.width / 2; i += gapSize[0] / factor[0]) {
+        ctx2.beginPath();
+        ctx2.moveTo(i, -canvas2.height / 2);
+        ctx2.lineTo(i, canvas2.height / 2);
+        ctx2.stroke();
+    }
+    for (var i = -canvas2.height / 2 + gapSize[1] / factor[1]; i < canvas2.height / 2; i += gapSize[1] / factor[1]) {
+        ctx2.beginPath();
+        ctx2.moveTo(-canvas2.width / 2, i);
+        ctx2.lineTo(canvas2.width / 2, i);
+        ctx2.stroke();
+    }
+
+    // Draw the marker
+    ctx2.fillStyle = "#f00"; // set the color of the marker
+    ctx2.beginPath();
+
+    // console.log(position.x / factor[0] + 5*Math.cos(direction), -(position.y / factor[1] + 5*Math.sin(direction)));
+    // console.log(position.x /factor[0] - 5 * Math.cos(direction + Math.PI / 5), 
+    //     -(position.y/factor[1] - 5 * Math.sin(direction + Math.PI / 5)));
+    // console.log(position.x / factor[0] - 5 * Math.cos(direction - Math.PI / 5),
+    //     -(position.y/factor[1] - 5 * Math.sin(direction - Math.PI / 5)));
+    const k = 20;
+    ctx2.moveTo(position.x / factor[0] + k/2*Math.cos(direction), -(position.y / factor[1] + k/2*Math.sin(direction)));
+    ctx2.lineTo(position.x /factor[0] - k/2 * Math.cos(direction + Math.PI / 5), 
+        -(position.y/factor[1] - k/2 * Math.sin(direction + Math.PI / 5)));
+    ctx2.lineTo(position.x / factor[0] - k/2 * Math.cos(direction - Math.PI / 5),
+        -(position.y/factor[1] - k/2 * Math.sin(direction - Math.PI / 5)));
+    ctx2.closePath();
+    ctx2.fill();
+    ctx2.stroke();
+    drawNESW(-Math.PI/2, ctx2);
+}
+let minx, miny, maxx, maxy; // size of full drawing area
 function init() {
     // Canvas setup
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     ctx.translate(canvas.width / 2, canvas.height / 2);
+    minx = -canvas.width * 10, maxx = canvas.width * 10, 
+    miny = -canvas.height * 10, maxy = canvas.height * 10; 
+
     centerX = 0; // canvas.width / 2;
     centerY = 0; // canvas.height / 2;
     ctx.rotate(-Math.PI/2);
@@ -304,6 +379,8 @@ function init() {
     document.getElementById('keel-position').addEventListener('input', function(event) { // alert("wind speed");
         keelPosition = event.target.value;
     });
+
+    initCanvas2();
 
     // animation loop:  
     interval = setInterval(updateCanvas, 1000/60);

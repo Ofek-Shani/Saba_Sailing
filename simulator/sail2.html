@@ -4,9 +4,10 @@
 	<title>Sailboat Simulator</title>
 	<style>
 		canvas {
-			border: 1px solid black;
+			border: 10px solid brown;
 			background-color: #87CEFA;
 		}
+        input {cursor: pointer;}
 	</style>
 </head>
 <script src="sailboat.js"></script>
@@ -39,7 +40,7 @@
             <td><label for="wind-speed">Wind Speed:</label></td>
         </tr>
             <td><input type="range" id="sail-angle" min="-60" max="60" value="30"></td>
-            <td><input type="range" id="steering-angle" min="-45" max="45" value="0"></td>
+            <td><input type="range" id="steering-angle" min="-80" max="80" value="0"></td>
             <td><input type="range" id="wind-direction" min="0" max="360" value="90"></td>
             <td><input type="range" id="wind-speed" min="0" max="10" value="3"></td>
         </tr>
@@ -50,7 +51,11 @@
             <td><input readonly type="text" size="6" id="windSpeed"></td>
         </tr>
     </table>
-	<canvas id="canvas" width="500" height="500"></canvas><br>
+	<div style="display:flex">
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <div style="width:10px;"></div>
+        <canvas id="canvas2" width="500" height="500"></canvas>
+    </div>
 </div>
 </body>
 </html>
