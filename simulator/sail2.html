@@ -7,7 +7,7 @@
 			border: 10px solid brown;
 			background-color: #87CEFA;
 		}
-        input {cursor: pointer;}
+        input.clickable {cursor: pointer;}
 	</style>
 </head>
 <script src="sailboat.js"></script>
@@ -17,15 +17,15 @@
 	<p>Use the sliders to control the sail angle and steering angle.</p>
     <table>
         <tr>
+            <td>Boat Direction:</td><td><input readonly type="text" size="6" id="boatDirection"></td>
             <td>Boat Speed:</td><td><input readonly type="text" size="6" id="boatSpeed"></td>
             <td>Boat Position:</td><td><input readonly type="text" size="6" id="boatPosition"></td>
             <!-- <td>Stop/Res boat rot.:</td>
             <td><button style="height:30px; background-color:lightGreen" id="pause" onclick="stopStart(this)">Resume</button></td> -->
-            <tr><td>Boat Direction:</td><td><input readonly type="text" size="6" id="boatDirection"></td>
+            <tr>
                 <td>Wind-Boat Angle:</td><td><input readonly type="text" size="6" id="windBoatAngle"></td>
-        </tr>
-        <tr><td>Wind-Sail Angle:</td><td><input readonly type="text" size="6" id="windSailAngle"></td>
-            <td>Wind Force:</td><td><input readonly type="text" size="6" id="windForce"></td>
+                <td>Wind-Sail Angle:</td><td><input readonly type="text" size="6" id="windSailAngle"></td>
+                <td>Wind Force:</td><td><input readonly type="text" size="6" id="windForce"></td>
         </tr>
         <tr><td>Water Resistance:</td><td><input readonly type="text" size="6" id="waterResistance"></td>
             <td>accelaration:</td><td><input readonly type="text" size="6" id="acceleration"></td>

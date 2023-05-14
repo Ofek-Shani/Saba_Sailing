@@ -200,13 +200,14 @@ function updateWind() {
 function updateCanvas() {
     displaySailAngle(sailAngle);
     displaySteeringAngle(steeringAngle);
-    ctx.clearRect(minx, miny, maxx-minx, maxy-miny); //-canvas.width/2,-canvas.height/2, canvas.width, canvas.height);
+    ctx.clearRect(-canvas.width,-canvas.height, canvas.width*2, canvas.height*2); //-canvas.width/2,-canvas.height/2, canvas.width, canvas.height);
     drawWind();
     drawFullBoat();
     updateWind();
     drawNESW(-boatDirection, ctx);
     drawMainGrid(-boatDirection);
     updateBoat();
+    drawMarkers();
 }
 
 let interval;
@@ -343,14 +344,14 @@ function drawCanvas2(position, direction, factor, gapSize) {  // position has x:
     ctx2.stroke();
     drawNESW(-Math.PI/2, ctx2);
 }
-let minx, miny, maxx, maxy; // size of full drawing area
+// let minx, miny, maxx, maxy; // size of full drawing area
 function init() {
     // Canvas setup
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     ctx.translate(canvas.width / 2, canvas.height / 2);
-    minx = -canvas.width * 10, maxx = canvas.width * 10, 
-    miny = -canvas.height * 10, maxy = canvas.height * 10; 
+    // minx = -canvas.width * 10, maxx = canvas.width * 10, 
+    // miny = -canvas.height * 10, maxy = canvas.height * 10; 
 
     centerX = 0; // canvas.width / 2;
     centerY = 0; // canvas.height / 2;
@@ -382,6 +383,55 @@ function init() {
 
     initCanvas2();
 
+    // initialize actions
+    {   const e = document.getElementById("windBoatAngle"); 
+        e.onclick = () => drawAngle(e, 0,0, ()=>boatDirection, ()=>windDirection);
+        e.classList.add("clickable");
+    }
+    {   const e = document.getElementById("windSailAngle"); 
+        e.onclick = () => drawAngle(
+            e, 0, -20, 
+            ()=>sailAngle + boatDirection + Math.PI, 
+            ()=>windDirection + Math.PI
+        );
+        e.classList.add("clickable");
+    }
+
     // animation loop:  
     interval = setInterval(updateCanvas, 1000/60);
 }
+
+const markers = {};
+function drawAngle(input, x, y, r1, r2) { // r - angle ray functions returning actual value.
+    if (markers[input.id] != undefined) delete markers[input.id]; 
+    else markers[input.id] = {x,y,input, r1, r2};
+}
+function drawMarkers() {
+    ctx.save();
+    for (let m in markers) {
+        let x = markers[m].x, y=markers[m].y, r1=markers[m].r1(), r2=markers[m].r2();
+        let radius = 50; // radius of the angle arc
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + radius * Math.cos(r1), y - radius * Math.sin(r1));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.strokeStyle = "green";
+        ctx.lineTo(x + radius * Math.cos(r2), y - radius * Math.sin(r2));
+        ctx.stroke();
+        
+        // Draw the angle arc in red
+        ctx.strokeStyle = "yellow";
+        ctx.beginPath();
+        let a = r1, c = a/Math.PI*180;
+        let b = r2; d = b/Math.PI*180;
+        ctx.arc(x, y, radius, r2, r1, false);
+        ctx.stroke();
+        // ctx.strokeStyle = "black";
+   }
+   ctx.restore();
+}
+
