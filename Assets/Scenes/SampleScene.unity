@@ -5230,6 +5230,7 @@ GameObject:
   - component: {fileID: 959977188}
   - component: {fileID: 959977187}
   - component: {fileID: 959977189}
+  - component: {fileID: 959977190}
   m_Layer: 0
   m_Name: Boat
   m_TagString: Untagged
@@ -5321,6 +5322,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 787d6a2e7d307fb43bec23062c7fbbdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  windSpeed: 0
+  windDirection: 0
+  rudderAngle: 0
+  sailAngle: 0
+  keelPosition: 0
+  boatAngle: 0
+  keelStatus: 0
   frontSail: {fileID: 1498318153}
   mainSail: {fileID: 177490297}
   rudder: {fileID: 944101492}
@@ -5329,6 +5337,18 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 90a6a8564c046f84aae42ebb678ae5c7, type: 3}
   - {fileID: 21300000, guid: 7fa935c132434934c94f982cdfacd39c, type: 3}
   - {fileID: 21300000, guid: 1d9d1781a8a7821489bfe74187f6eb83, type: 3}
+--- !u!114 &959977190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959977186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca9b30cc242385240bbc09ad9d87d37f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1032089696
 GameObject:
   m_ObjectHideFlags: 0

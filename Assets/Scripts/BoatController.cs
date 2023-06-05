@@ -5,12 +5,12 @@ using UnityEngine;
 public class BoatController : MonoBehaviour
 {
 
-    float windSpeed, windDirection, rudderAngle, sailAngle, keelPosition, boatAngle = 0;
+    public float windSpeed, windDirection, rudderAngle, sailAngle, keelPosition, boatAngle = 0;
 
     enum BoatPart { KEEL, RUDDER, FRONTSAIL, MAINSAIL };
     BoatPart boatPart = BoatPart.KEEL;
-    enum KeelStatus { UP, HALFWAY, DOWN };
-    KeelStatus keelStatus = KeelStatus.UP;
+    public enum KeelStatus { UP, HALFWAY, DOWN };
+    public KeelStatus keelStatus = KeelStatus.UP;
 
     bool controlBothSails = true;
 
@@ -20,7 +20,19 @@ public class BoatController : MonoBehaviour
         
 
     WindController wc;
-    // Start is called before the first frame update
+
+    public static BoatController instance;
+
+    public static BoatController Instance
+    {
+        get { return instance; }
+    }
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     void Start()
     {
         windSpeed = 10;
@@ -48,10 +60,10 @@ public class BoatController : MonoBehaviour
         {
             switch(e.keyCode)
             {
-                case KeyCode.Alpha1: boatPart = BoatPart.KEEL; break;
-                case KeyCode.Alpha2: boatPart = BoatPart.RUDDER; break;
-                case KeyCode.Alpha3: boatPart = BoatPart.FRONTSAIL; break;
-                case KeyCode.Alpha4: boatPart = BoatPart.MAINSAIL; break;
+                case KeyCode.Alpha1: boatPart = BoatPart.KEEL; Debug.Log("Keel Control"); break;
+                case KeyCode.Alpha2: boatPart = BoatPart.RUDDER; Debug.Log("Rudder Control"); break;
+                case KeyCode.Alpha3: boatPart = BoatPart.FRONTSAIL; Debug.Log("Front Sail Control"); break;
+                case KeyCode.Alpha4: boatPart = BoatPart.MAINSAIL; Debug.Log("Main Sail Control"); break;
                 default: break;
             }
         }
@@ -59,7 +71,6 @@ public class BoatController : MonoBehaviour
 
     void GetControls()
     {
-        //Debug.Log(boatPart);
         switch(boatPart)
         {
             case BoatPart.KEEL: ControlKeel(); break;
@@ -72,13 +83,13 @@ public class BoatController : MonoBehaviour
 
     void CalculateSpeed()
     {
-
+        
     }
 
     void ControlKeel()
     {
         // KeelStatus 0 is fully up and not in water, 2 is down and fully in water
-        Debug.Log("Controlling Keel...");
+        //Debug.Log("Controlling Keel...");
         if(Input.GetKeyUp(KeyCode.UpArrow) || Input.GetKeyUp(KeyCode.W)) // move keel up
         {
             if(keelStatus != KeelStatus.UP ) keelStatus--;
@@ -93,7 +104,7 @@ public class BoatController : MonoBehaviour
 
     void ControlRudder()
     {
-        Debug.Log("Controlling Rudder...");
+        //Debug.Log("Controlling Rudder...");
         float horizInput = Input.GetAxis("Horizontal");
         rudderAngle += horizInput * .1f;
 
@@ -104,7 +115,7 @@ public class BoatController : MonoBehaviour
 
     void ControlSails()
     {
-        Debug.Log("Controlling Sails...");
+        //Debug.Log("Controlling Sails...");
         float horizInput = Input.GetAxis("Horizontal");
         sailAngle += horizInput * .1f;
 
