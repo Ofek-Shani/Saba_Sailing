@@ -1,6 +1,7 @@
     // Constants
+    const KA = 0.5;// acceleration factor
     const KN = 10; // Constant for normal sail power
-    const KT = 10; // Constant for tangential sail power
+    const KT = 20; // Constant for tangential sail power
     const KW = 1; // Constant for angular change rate calculation
     const M = 10; // Boat mass in kg
     const L = 5; // Boat length in meters
@@ -154,7 +155,7 @@ function updateBoat() {
     displayWindBoatAngle(windAngle);
     // Compute sail and rudder forces
     const sailForce = Math.sign(windSailAngle) * windSpeed * (
-        KT * Math.abs(Math.cos(windSailAngle))* condition(windSailAngle, 140, 170) + 
+        KT * Math.abs(Math.cos(windSailAngle))* condition(windSailAngle, 120, 160) + 
         KN * Math.abs(Math.sin(windSailAngle))
     );
     const fwdSailForce = sailForce * Math.abs(Math.sin(sailAngle));
@@ -177,7 +178,7 @@ function updateBoat() {
     // acceleration = Math.abs(acceleration) < 1 ? 0 : acceleration;
     displayAcceleration(fwdAcceleration);
     // Update boat speed and direction
-    boatSpeed += fwdAcceleration * DT;
+    boatSpeed += KA * fwdAcceleration * DT;
     boatDrift = driftForce / M;
     displayBoatSpeed(boatSpeed, boatDrift);
     boatPosition.x += boatSpeed * Math.cos(boatDirection) * DT + boatDrift * Math.sin(boatDirection) * DT;
@@ -383,7 +384,19 @@ function init() {
 
     initCanvas2();
 
-    // initialize actions
+    // key events:
+    window.addEventListener("keydown", function(event) {
+        // alert(event.code);
+        const sailStep = Math.PI/3/5;
+        const steeringStep = Math.PI*(80/180)/5;
+        if (event.code === "ArrowLeft") sailAngle -= sailStep;
+        else if (event.code === "ArrowRight") sailAngle += sailStep;
+        else if (event.code === "KeyA") steeringAngle -= steeringStep;
+        else if (event.code === "KeyD") steeringAngle += steeringStep;
+        sailAngle = Math.min(Math.max(-Math.PI/3, sailAngle), Math.PI/3);
+        steeringAngle = Math.min(Math.max(-Math.PI*(80/180), steeringAngle), Math.PI*(80/180));
+      });
+    // initialize marker actions
     {   const e = document.getElementById("windBoatAngle"); 
         e.onclick = () => drawAngle(e, 0,0, ()=>boatDirection, ()=>windDirection);
         e.classList.add("clickable");
