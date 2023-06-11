@@ -5,7 +5,7 @@ using UnityEngine;
 public class BoatController : MonoBehaviour
 {
 
-    public float windSpeed, windDirection, rudderAngle, sailAngle, keelPosition, boatAngle = 0;
+    public float windSpeed, windDirection, rudderAngle, sailAngle, keelPosition;
 
     enum BoatPart { KEEL, RUDDER, FRONTSAIL, MAINSAIL };
     BoatPart boatPart = BoatPart.KEEL;
@@ -20,6 +20,7 @@ public class BoatController : MonoBehaviour
         
 
     WindController wc;
+    Rigidbody2D rb;
 
     public static BoatController instance;
 
@@ -42,6 +43,8 @@ public class BoatController : MonoBehaviour
 
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
 
+        rb = GetComponent<Rigidbody2D>();
+
         keelSpr = keel.GetComponent<SpriteRenderer>();
     }
 
@@ -49,8 +52,9 @@ public class BoatController : MonoBehaviour
     void Update()
     {
         GetControls();
-        //ControlSails();
-        
+        CalculateSailShape();
+        DoPhysics();
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + new Vector3(0, 0, Input.GetAxis("Vertical")));
     }
 
     private void OnGUI()
@@ -127,24 +131,50 @@ public class BoatController : MonoBehaviour
         CalculateSailShape();
     }
 
+    float[] GetForceMagnitudes(float sailDir)
+    {
+        float deltaAngle = (sailDir - wc.windDirection + 360) % 360;
+        float forceTangent = Mathf.Cos(deltaAngle * Mathf.Deg2Rad);
+        float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
+
+        return new float[] { deltaAngle, forceTangent, forceNormal };
+    }
+
+    Vector2 GetForceVectors(float forceMag, float angle, bool isTangent)
+    {
+        Vector2 temp = new Vector2(forceMag * Mathf.Cos(angle), forceMag * Mathf.Sin(angle));
+        return temp;
+    }
+
     void CalculateSailShape()
     {
         float frontSailZ = frontSail.transform.rotation.eulerAngles.z;
         float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
-        float[] GetForces(float sailDir)
-        {
-            float deltaAngle = (sailDir - wc.windDirection + 360) % 360;
-            float forceTangent = Mathf.Cos(deltaAngle * Mathf.Deg2Rad);
-            float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
-
-            return new float[] { deltaAngle, forceTangent, forceNormal };
-        }
-
-        float[] mainForces = GetForces(mainSailZ);
-        float[] frontForces = GetForces(frontSailZ);
+        
+        float[] mainForces = GetForceMagnitudes(mainSailZ);
+        float[] frontForces = GetForceMagnitudes(frontSailZ);
 
         frontSail.transform.localScale = new Vector3(frontSail.transform.localScale.x, frontForces[2], 0);
         mainSail.transform.localScale = new Vector3(mainSail.transform.localScale.x, mainForces[2], 0);
+    }
+
+    float SailTangentCondition(float v, float min, float max)
+    {
+        return v >= min && v <= max ? 1 : 0;
+    }
+
+    void DoPhysics()
+    {
+        float frontSailZ = frontSail.transform.rotation.eulerAngles.z;
+        float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
+
+        float[] mainForces = GetForceMagnitudes(mainSailZ);
+        float[] frontForces = GetForceMagnitudes(frontSailZ);
+
+        rb.AddForce(GetForceVectors(windSpeed/10, mainForces[0], false)); // normal force
+        
+
+        
     }
 
 

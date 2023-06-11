@@ -337,7 +337,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 959977188}
+  m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &716592676
@@ -5165,7 +5165,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 959977188}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 80}
 --- !u!212 &944101494
 SpriteRenderer:
@@ -5231,6 +5231,7 @@ GameObject:
   - component: {fileID: 959977187}
   - component: {fileID: 959977189}
   - component: {fileID: 959977190}
+  - component: {fileID: 959977191}
   m_Layer: 0
   m_Name: Boat
   m_TagString: Untagged
@@ -5304,11 +5305,10 @@ Transform:
   m_Children:
   - {fileID: 177490298}
   - {fileID: 1498318154}
-  - {fileID: 716592675}
   - {fileID: 1571859035}
   - {fileID: 944101493}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &959977189
 MonoBehaviour:
@@ -5327,7 +5327,6 @@ MonoBehaviour:
   rudderAngle: 0
   sailAngle: 0
   keelPosition: 0
-  boatAngle: 0
   keelStatus: 0
   frontSail: {fileID: 1498318153}
   mainSail: {fileID: 177490297}
@@ -5349,6 +5348,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9b30cc242385240bbc09ad9d87d37f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!50 &959977191
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959977186}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 1
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
 --- !u!1 &1032089696
 GameObject:
   m_ObjectHideFlags: 0
@@ -5412,7 +5432,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 111, y: 111}
+  m_Size: {x: 125, y: 125}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5547,7 +5567,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 959977188}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1571859036
 SpriteRenderer:
