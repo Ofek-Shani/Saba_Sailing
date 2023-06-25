@@ -5,7 +5,7 @@ using UnityEngine;
 public class BoatController : MonoBehaviour
 {
 
-    public float windSpeed, windDirection, rudderAngle, sailAngle, keelPosition;
+    public float rudderAngle, sailAngle, keelPosition;
 
     enum BoatPart { KEEL, RUDDER, FRONTSAIL, MAINSAIL };
     BoatPart boatPart = BoatPart.KEEL;
@@ -36,8 +36,6 @@ public class BoatController : MonoBehaviour
 
     void Start()
     {
-        windSpeed = 10;
-        windDirection = Mathf.PI / 2;
         //mainSail = transform.GetChild(0).gameObject;
         //frontSail = transform.GetChild(1).gameObject;
 
@@ -165,16 +163,18 @@ public class BoatController : MonoBehaviour
 
     void DoPhysics()
     {
-        float frontSailZ = frontSail.transform.rotation.eulerAngles.z;
         float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
 
-        float[] mainForces = GetForceMagnitudes(mainSailZ);
-        float[] frontForces = GetForceMagnitudes(frontSailZ);
+        float deltaAngle = (mainSailZ - wc.windDirection) % 360;
+        Debug.Log("deltaAngle " + deltaAngle);
+        float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
 
-        rb.AddForce(GetForceVectors(windSpeed/10, mainForces[0], false)); // normal force
-        
+        Vector2 forceNormalVector = new Vector2(Mathf.Cos((mainSailZ + 90) * Mathf.Deg2Rad), Mathf.Sin((mainSailZ + 90) * Mathf.Deg2Rad)) * forceNormal;
 
-        
+        rb.AddForce(forceNormalVector);
+
+
+
     }
 
 

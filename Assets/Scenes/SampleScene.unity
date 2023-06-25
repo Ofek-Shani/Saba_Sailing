@@ -353,7 +353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displacement: 3
-  windDirection: 45
+  windDirection: 90
   windStrength: 10
 --- !u!199 &716592677
 ParticleSystemRenderer:
@@ -5159,14 +5159,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 944101492}
-  m_LocalRotation: {x: 0, y: 0, z: 0.6427876, w: 0.7660445}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -2.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 959977188}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 80}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &944101494
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5322,8 +5322,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 787d6a2e7d307fb43bec23062c7fbbdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  windSpeed: 0
-  windDirection: 0
   rudderAngle: 0
   sailAngle: 0
   keelPosition: 0

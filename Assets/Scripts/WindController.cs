@@ -6,9 +6,16 @@ using UnityEngine;
 public class WindController : MonoBehaviour
 {
     [SerializeField] float displacement = 3;
-    public float windDirection = 45;
+    public float windDirection = 0;
     public int windStrength = 10;
     ParticleSystem pt;
+
+    public static WindController instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
