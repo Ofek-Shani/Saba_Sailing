@@ -35,7 +35,7 @@ public class WindController : MonoBehaviour
 
         for(int i = 0; i < particles.Length; i++)
         {
-            particles[i].velocity = windDirectionVector * windStrength;
+            particles[i].velocity = windDirectionVector * windStrength * Time.deltaTime * .5f;
         }
 
         pt.SetParticles(particles, pt.particleCount);

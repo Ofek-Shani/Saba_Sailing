@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class BoatController : MonoBehaviour
@@ -21,6 +22,12 @@ public class BoatController : MonoBehaviour
 
     WindController wc;
     Rigidbody2D rb;
+
+    TMP_Text boatText;
+
+    // CONSTANTS FOR BOAT
+    [Range(0.0f, 10.0f)]
+    float WATER_DENSITY = 50, BOAT_MASS = 1;
 
     public static BoatController instance;
 
@@ -44,6 +51,7 @@ public class BoatController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         keelSpr = keel.GetComponent<SpriteRenderer>();
+        boatText = GameObject.FindGameObjectWithTag("BoatInfo").GetComponent<TMP_Text>();
     }
 
     // Update is called once per frame
@@ -163,6 +171,10 @@ public class BoatController : MonoBehaviour
 
     void DoPhysics()
     {
+        Vector2 boatForwardDirection = (Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.forward) * Vector2.up).normalized;
+        Vector2 boatSidewaysDirection = new(-boatForwardDirection.y, boatForwardDirection.x);
+
+        // Wind Force on the Sails
         float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
 
         float deltaAngle = (mainSailZ - wc.windDirection) % 360;
@@ -171,11 +183,33 @@ public class BoatController : MonoBehaviour
 
         Vector2 forceNormalVector = new Vector2(Mathf.Cos((mainSailZ + 90) * Mathf.Deg2Rad), Mathf.Sin((mainSailZ + 90) * Mathf.Deg2Rad)) * forceNormal;
 
-        rb.AddForce(forceNormalVector);
+        rb.AddForce(forceNormalVector *  Time.deltaTime * wc.windStrength);
+
+        // our forces are only taking into account the wind here -- water drag is not accounted for yet!
+        Vector2 forwardForceVector = Vector2.Dot(forceNormalVector, boatForwardDirection) * boatForwardDirection;
+        Vector2 sidewaysForceVector = Vector2.Dot(forceNormalVector, boatSidewaysDirection) * boatSidewaysDirection;
+
+        float forwardSpeed = forwardForceVector.magnitude;
+        float sidewaysSpeed = sidewaysForceVector.magnitude;
+
+        // Water Drag Force on the boat
+
+        Vector2 boatDirectionVeclocity = Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.back) * rb.velocity;
+        
+        float inverseSquareVelocityX = rb.velocity.x * rb.velocity.x * Mathf.Sign(rb.velocity.x) * -1;
+        float inverseSquareVelocityY = rb.velocity.y * rb.velocity.y * Mathf.Sign(rb.velocity.y) * -1;
+        Vector2 inverseSquareVelocity = new(inverseSquareVelocityX, inverseSquareVelocityY);
+
+        rb.AddForce(inverseSquareVelocity);
+
+        boatText.text = boatForwardDirection.ToString() + "\n" + boatForwardDirection.magnitude;
+        
+        // Water Force on Keel
 
 
 
     }
+
 
 
 }
