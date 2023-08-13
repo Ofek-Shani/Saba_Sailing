@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BoatController : MonoBehaviour
@@ -28,6 +29,12 @@ public class BoatController : MonoBehaviour
     // CONSTANTS FOR BOAT
     [Range(0.0f, 10.0f)]
     float WATER_DENSITY = 50, BOAT_MASS = 1;
+    float FORWARD_DRAG_FACTOR = 3;
+    Dictionary<KeelStatus, float> LATERAL_DRAG_FACTOR = new Dictionary<KeelStatus, float>()
+    { {KeelStatus.UP, 10},
+      {KeelStatus.HALFWAY, 50},
+      {KeelStatus.DOWN, 150},};
+    float WIND_BODY_FACTOR = .01f;
 
     public static BoatController instance;
 
@@ -60,7 +67,7 @@ public class BoatController : MonoBehaviour
         GetControls();
         CalculateSailShape();
         DoPhysics();
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + new Vector3(0, 0, Input.GetAxis("Vertical")));
+        //transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + new Vector3(0, 0, Input.GetAxis("Vertical")));
     }
 
     private void OnGUI()
@@ -171,43 +178,65 @@ public class BoatController : MonoBehaviour
 
     void DoPhysics()
     {
-        Vector2 boatForwardDirection = (Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.forward) * Vector2.up).normalized;
-        Vector2 boatSidewaysDirection = new(-boatForwardDirection.y, boatForwardDirection.x);
-
         // Wind Force on the Sails
         float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
+        float frontSailZ = frontSail.transform.rotation.eulerAngles.z;
 
-        float deltaAngle = (mainSailZ - wc.windDirection) % 360;
-        Debug.Log("deltaAngle " + deltaAngle);
-        float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
+        Vector2 boatForwardDirection = (Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.forward) * Vector2.up).normalized;
+        Vector2 boatLateralDirection = new(-boatForwardDirection.y, boatForwardDirection.x);
 
-        Vector2 forceNormalVector = new Vector2(Mathf.Cos((mainSailZ + 90) * Mathf.Deg2Rad), Mathf.Sin((mainSailZ + 90) * Mathf.Deg2Rad)) * forceNormal;
-
-        rb.AddForce(forceNormalVector *  Time.deltaTime * wc.windStrength);
+        Vector2 combinedSailForces = GetCombinedSailForces(mainSailZ, frontSailZ, 10, 5);
 
         // our forces are only taking into account the wind here -- water drag is not accounted for yet!
-        Vector2 forwardForceVector = Vector2.Dot(forceNormalVector, boatForwardDirection) * boatForwardDirection;
-        Vector2 sidewaysForceVector = Vector2.Dot(forceNormalVector, boatSidewaysDirection) * boatSidewaysDirection;
+        Vector2 forwardForceVector = Vector2.Dot(combinedSailForces, boatForwardDirection) * boatForwardDirection;
+        Vector2 lateralForceVector = Vector2.Dot(combinedSailForces, boatLateralDirection) * boatLateralDirection;
 
-        float forwardSpeed = forwardForceVector.magnitude;
-        float sidewaysSpeed = sidewaysForceVector.magnitude;
+        rb.AddForce((forwardForceVector + lateralForceVector) * Time.deltaTime * 10);
 
         // Water Drag Force on the boat
 
+        float forwardVelocity = Vector2.Dot(rb.velocity, boatForwardDirection);
+        float lateralVelocity = Vector2.Dot(rb.velocity, boatLateralDirection);
+
         Vector2 boatDirectionVeclocity = Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.back) * rb.velocity;
         
-        float inverseSquareVelocityX = rb.velocity.x * rb.velocity.x * Mathf.Sign(rb.velocity.x) * -1;
-        float inverseSquareVelocityY = rb.velocity.y * rb.velocity.y * Mathf.Sign(rb.velocity.y) * -1;
-        Vector2 inverseSquareVelocity = new(inverseSquareVelocityX, inverseSquareVelocityY);
+        float inverseSquareVelocityForward = Mathf.Pow(forwardVelocity, 2) * Mathf.Sign(forwardVelocity) * -1 * FORWARD_DRAG_FACTOR;
+        float inverseSquareVelocityLateral = Mathf.Pow(lateralVelocity, 2) * Mathf.Sign(lateralVelocity) * -1 * LATERAL_DRAG_FACTOR[keelStatus];
+        //Vector2 inverseSquareVelocity = new(inverseSquareVelocityForward, inverseSquareVelocityLateral);
 
-        rb.AddForce(inverseSquareVelocity);
+        Vector2 forwardDragForce = boatForwardDirection * inverseSquareVelocityForward;
+        Vector2 lateralDragForce = boatLateralDirection * inverseSquareVelocityLateral;
 
-        boatText.text = boatForwardDirection.ToString() + "\n" + boatForwardDirection.magnitude;
+        rb.AddForce((forwardDragForce + lateralDragForce) * Time.deltaTime * 10);
+
+        boatText.text = rb.velocity.ToShortString();
         
         // Water Force on Keel
+    }
 
+    /// <summary>
+    /// Calculates forces acting on a sail of a given angle (assumes tangent force is negligable even though it might not be)
+    /// </summary>
+    /// <param name="sailZ"></param>
+    /// <param name="sailFactor"></param>
+    /// <returns></returns>
+    Vector2 GetSailForces(float sailZ, float sailFactor)
+    {
+        float deltaAngle = (sailZ - wc.windDirection) % 360;
+        Debug.Log("deltaAngle " + deltaAngle);
+        float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
 
+        Vector2 forceNormalVector = new Vector2(Mathf.Cos((sailZ + 90) * Mathf.Deg2Rad), Mathf.Sin((sailZ + 90) * Mathf.Deg2Rad)) * forceNormal;
 
+        return forceNormalVector * sailFactor;
+        // rb.AddForce(forceNormalVector * Time.deltaTime * wc.windStrength);
+    }
+
+    Vector2 GetCombinedSailForces(float mainSailZ, float frontSailZ, float mainSailFactor, float frontSailFactor)
+    {
+        Vector2 sailForces = GetSailForces(mainSailZ, mainSailFactor) + GetSailForces(frontSailZ, frontSailFactor);
+        Vector2 boatForce = Quaternion.Euler(0, 0, wc.windDirection) * Vector2.right * wc.windStrength * WIND_BODY_FACTOR;
+        return sailForces + boatForce;
     }
 
 
