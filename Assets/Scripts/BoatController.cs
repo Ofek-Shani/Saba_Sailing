@@ -33,7 +33,8 @@ public class BoatController : MonoBehaviour
     Dictionary<KeelStatus, float> LATERAL_DRAG_FACTOR = new Dictionary<KeelStatus, float>()
     { {KeelStatus.UP, 10},
       {KeelStatus.HALFWAY, 50},
-      {KeelStatus.DOWN, 150},};
+      {KeelStatus.DOWN, 150},
+    };
     float WIND_BODY_FACTOR = .01f;
 
     public static BoatController instance;
@@ -96,11 +97,6 @@ public class BoatController : MonoBehaviour
             case BoatPart.MAINSAIL: ControlSails(); break;
             default: break;
         }
-    }
-
-    void CalculateSpeed()
-    {
-        
     }
 
     void ControlKeel()
@@ -187,21 +183,19 @@ public class BoatController : MonoBehaviour
 
         Vector2 combinedSailForces = GetCombinedSailForces(mainSailZ, frontSailZ, 10, 5);
 
-        // our forces are only taking into account the wind here -- water drag is not accounted for yet!
+        // our forces are only taking into account the wind here
         Vector2 forwardForceVector = Vector2.Dot(combinedSailForces, boatForwardDirection) * boatForwardDirection;
         Vector2 lateralForceVector = Vector2.Dot(combinedSailForces, boatLateralDirection) * boatLateralDirection;
-
         rb.AddForce((forwardForceVector + lateralForceVector) * Time.deltaTime * 10);
 
         // Water Drag Force on the boat
-
         float forwardVelocity = Vector2.Dot(rb.velocity, boatForwardDirection);
         float lateralVelocity = Vector2.Dot(rb.velocity, boatLateralDirection);
 
         Vector2 boatDirectionVeclocity = Quaternion.AngleAxis(transform.eulerAngles.z, Vector3.back) * rb.velocity;
-        
-        float inverseSquareVelocityForward = Mathf.Pow(forwardVelocity, 2) * Mathf.Sign(forwardVelocity) * -1 * FORWARD_DRAG_FACTOR;
-        float inverseSquareVelocityLateral = Mathf.Pow(lateralVelocity, 2) * Mathf.Sign(lateralVelocity) * -1 * LATERAL_DRAG_FACTOR[keelStatus];
+
+        float inverseSquareVelocityForward = Mathf.Pow(forwardVelocity, 2) * Mathf.Sign(forwardVelocity) * -1 * GetForwardDragFactor();
+        float inverseSquareVelocityLateral = Mathf.Pow(lateralVelocity, 2) * Mathf.Sign(lateralVelocity) * -1 * GetLateralDragFactor();
         //Vector2 inverseSquareVelocity = new(inverseSquareVelocityForward, inverseSquareVelocityLateral);
 
         Vector2 forwardDragForce = boatForwardDirection * inverseSquareVelocityForward;
@@ -209,9 +203,31 @@ public class BoatController : MonoBehaviour
 
         rb.AddForce((forwardDragForce + lateralDragForce) * Time.deltaTime * 10);
 
-        boatText.text = rb.velocity.ToShortString();
+        GetSteeringForce();
+
+        // Boat rotation and Torque (steering)
         
-        // Water Force on Keel
+        boatText.text = rb.velocity.ToShortString();
+      
+    }
+
+    void GetSteeringForce()
+    {
+        //Debug.Log((-1 * rudder.transform.up).ToShortString() + " <- forward, right -> " + rudder.transform.right.ToShortString());
+        Vector2 rudderDirection = rudder.transform.up * -1;
+ 
+    }
+
+    float GetLateralDragFactor()
+    {
+        return LATERAL_DRAG_FACTOR[keelStatus] + 
+            Mathf.Cos(rudder.transform.localEulerAngles.z * Mathf.Deg2Rad) * LATERAL_DRAG_FACTOR[KeelStatus.DOWN]/3;
+    }
+
+    float GetForwardDragFactor()
+    {
+        return FORWARD_DRAG_FACTOR +
+            Mathf.Abs(Mathf.Sin(rudder.transform.localEulerAngles.z * Mathf.Deg2Rad)) * FORWARD_DRAG_FACTOR / 3;
     }
 
     /// <summary>
