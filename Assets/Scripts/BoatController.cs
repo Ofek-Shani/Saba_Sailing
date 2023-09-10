@@ -198,6 +198,11 @@ public class BoatController : MonoBehaviour
         float inverseSquareVelocityLateral = Mathf.Pow(lateralVelocity, 2) * Mathf.Sign(lateralVelocity) * -1 * GetLateralDragFactor();
         //Vector2 inverseSquareVelocity = new(inverseSquareVelocityForward, inverseSquareVelocityLateral);
 
+        // TODO for Sep. 10
+        // we need to separate the drag force on the boat from the drag force on the sterring rudder for the forward and lateral directions
+        // we need to separate GetLateralDragFactor and GetForwardDragFactor each into 2 functions, one for steering and one for the main boat
+        // after changing these functions we need to change the last component of lines 197 and 198 into an addition of the 2 drag force functions
+        // the results of the factors from these functions can be reused by other functions in order to compute the torque on the boat (turning)
         Vector2 forwardDragForce = boatForwardDirection * inverseSquareVelocityForward;
         Vector2 lateralDragForce = boatLateralDirection * inverseSquareVelocityLateral;
 
