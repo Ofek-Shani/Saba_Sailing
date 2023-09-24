@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class BoatController : MonoBehaviour
@@ -36,6 +37,7 @@ public class BoatController : MonoBehaviour
       {KeelStatus.DOWN, 150},
     };
     float WIND_BODY_FACTOR = .01f;
+    float sailTension;
 
     public static BoatController instance;
 
@@ -47,6 +49,7 @@ public class BoatController : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        sailTension = 0;
     }
 
     void Start()
@@ -87,6 +90,22 @@ public class BoatController : MonoBehaviour
         }
     }
 
+    public void SetKeel(Slider sl)
+    {
+        keelStatus = (KeelStatus)sl.value;
+    }
+
+    public void SetSailTension(Slider sl)
+    {
+        sailTension = sl.value;
+    }
+
+    public void SetSteering(Slider sl)
+    {
+        rudderAngle = sl.value;
+        Debug.Log(rudderAngle);
+    }
+
     void GetControls()
     {
         switch(boatPart)
@@ -119,9 +138,9 @@ public class BoatController : MonoBehaviour
     {
         //Debug.Log("Controlling Rudder...");
         float horizInput = Input.GetAxis("Horizontal");
-        rudderAngle += horizInput * .1f;
+        //rudderAngle += horizInput * .1f;
 
-        rudderAngle = Mathf.Clamp(rudderAngle, -80, 80);
+        //rudderAngle = Mathf.Clamp(rudderAngle, -80, 80);
 
         rudder.transform.localRotation = Quaternion.Euler(0, 0, rudderAngle);
     }
@@ -244,7 +263,7 @@ public class BoatController : MonoBehaviour
     Vector2 GetSailForces(float sailZ, float sailFactor)
     {
         float deltaAngle = (sailZ - wc.windDirection) % 360;
-        Debug.Log("deltaAngle " + deltaAngle);
+        //Debug.Log("deltaAngle " + deltaAngle);
         float forceNormal = -1 * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
 
         Vector2 forceNormalVector = new Vector2(Mathf.Cos((sailZ + 90) * Mathf.Deg2Rad), Mathf.Sin((sailZ + 90) * Mathf.Deg2Rad)) * forceNormal;
