@@ -14,7 +14,9 @@ public class BoatController : MonoBehaviour
     BoatPart boatPart = BoatPart.KEEL;
     public enum KeelStatus { UP, HALFWAY, DOWN };
     public KeelStatus keelStatus = KeelStatus.UP;
-
+    public Text sailSliderValue;
+    public Text keelSliderValue;
+    public Text steeringSliderValue;
     bool controlBothSails = true;
 
     [SerializeField] GameObject frontSail, mainSail, rudder, keel;
@@ -93,17 +95,30 @@ public class BoatController : MonoBehaviour
     public void SetKeel(Slider sl)
     {
         keelStatus = (KeelStatus)sl.value;
+        keelSliderValue.text = keelStatus.ToString();
+        keelSpr.sprite = keelSprites[(int)keelStatus];
+        // Debug.Log(keelStatus);
     }
 
     public void SetSailTension(Slider sl)
     {
         sailTension = sl.value;
+        // Debug.Log(sailTension);
+        sailSliderValue.text = sailTension.ToString();
+        float pos = (float)(50.0 * (sailTension / 10.0));
+        sailAngle = (sailAngle > -90) ? -30 - pos : -150 + pos;
+        frontSail.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
+        mainSail.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
+
+        CalculateSailShape();
     }
 
     public void SetSteering(Slider sl)
     {
-        rudderAngle = sl.value;
-        Debug.Log(rudderAngle);
+        rudderAngle = sl.value * 10; // value is -8 to +8 meaning -80 deg, to +80 deg.
+        // Debug.Log(rudderAngle);
+        steeringSliderValue.text = rudderAngle.ToString("F0");
+        rudder.transform.localRotation = Quaternion.Euler(0, 0, rudderAngle);
     }
 
     void GetControls()
@@ -138,9 +153,9 @@ public class BoatController : MonoBehaviour
     {
         //Debug.Log("Controlling Rudder...");
         float horizInput = Input.GetAxis("Horizontal");
-        //rudderAngle += horizInput * .1f;
+        rudderAngle += horizInput * .1f;
 
-        //rudderAngle = Mathf.Clamp(rudderAngle, -80, 80);
+        rudderAngle = Mathf.Clamp(rudderAngle, -80, 80);
 
         rudder.transform.localRotation = Quaternion.Euler(0, 0, rudderAngle);
     }
