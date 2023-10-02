@@ -15,6 +15,7 @@ public class BoatPhysics : MonoBehaviour
     const float L = 5; // Boat length in meters
     const float KB = 0.5f; // factorfor wind effect on the boat body
     readonly float[] R = { -1.0f, 0, 0.5f }; // Water resistance constant [backward, still, forward]
+    const float AD = 0.5f; // Angular drag to slow rotational torque.
 
     float boatSpeed, boatDrift;
 

@@ -39,6 +39,7 @@ public class BoatController : MonoBehaviour
       {KeelStatus.DOWN, 150},
     };
     float WIND_BODY_FACTOR = .01f;
+    const float ANGULAR_DRAG = 0.5f;
     float sailTension;
 
     public static BoatController instance;
@@ -59,9 +60,12 @@ public class BoatController : MonoBehaviour
         //mainSail = transform.GetChild(0).gameObject;
         //frontSail = transform.GetChild(1).gameObject;
 
+        frontSailSpr = frontSail.GetComponent<SpriteRenderer>();
+        mainSailSpr = mainSail.GetComponent<SpriteRenderer>();
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
 
         rb = GetComponent<Rigidbody2D>();
+        rb.angularDrag = ANGULAR_DRAG;
 
         keelSpr = keel.GetComponent<SpriteRenderer>();
         boatText = GameObject.FindGameObjectWithTag("BoatInfo").GetComponent<TMP_Text>();
@@ -193,12 +197,15 @@ public class BoatController : MonoBehaviour
     {
         float frontSailZ = frontSail.transform.rotation.eulerAngles.z;
         float mainSailZ = mainSail.transform.rotation.eulerAngles.z;
-        
-        float[] mainForces = GetForceMagnitudes(mainSailZ);
-        float[] frontForces = GetForceMagnitudes(frontSailZ);
-
-        frontSail.transform.localScale = new Vector3(frontSail.transform.localScale.x, frontForces[2], 0);
-        mainSail.transform.localScale = new Vector3(mainSail.transform.localScale.x, mainForces[2], 0);
+        const float minScale = 0.4f;
+        float mainForces = GetForceMagnitudes(mainSailZ)[2];
+        float frontForces = GetForceMagnitudes(frontSailZ)[2];
+        float scaleY = Mathf.Sign(frontForces) * Mathf.Max(Mathf.Abs(frontForces), minScale);
+        frontSail.transform.localScale = new Vector3(mainSail.transform.localScale.x, scaleY, 0); ;
+        scaleY = Mathf.Sign(mainForces) * Mathf.Max(Mathf.Abs(mainForces), minScale);
+        mainSail.transform.localScale = new Vector3(mainSail.transform.localScale.x, scaleY, 0);
+        mainSailSpr.color = mainForces < 0 ? Color.red : Color.green;
+        frontSailSpr.color = frontForces < 0 ? Color.red : Color.green;
     }
 
     float SailTangentCondition(float v, float min, float max)
@@ -242,15 +249,15 @@ public class BoatController : MonoBehaviour
 
         rb.AddForce((forwardDragForce + lateralDragForce) * Time.deltaTime * 10);
 
-        GetSteeringForce();
+        ApplySteeringForce();
 
         // Boat rotation and Torque (steering)
-        
-        boatText.text = rb.velocity.ToShortString();
+
+        boatText.text = rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
       
     }
 
-    void GetSteeringForce()
+    void ApplySteeringForce()
     {
         //Debug.Log((-1 * rudder.transform.up).ToShortString() + " <- forward, right -> " + rudder.transform.right.ToShortString());
         Vector2 rudderDirection = rudder.transform.up * -1;
