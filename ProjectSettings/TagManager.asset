@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wind
   - BoatInfo
+  - SailingControl
   layers:
   - Default
   - TransparentFX
