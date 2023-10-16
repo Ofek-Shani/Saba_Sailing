@@ -479,11 +479,8 @@ MonoBehaviour:
   amplitude: 30
   both: 0
   theBoat: {fileID: 0}
-  spinSpeed: 0
   throwable: 0
-  throwDistance: 40
-  throwVariant: 10
-  flyTime: 2
+  throwForce: 1000
 --- !u!1 &142786210
 GameObject:
   m_ObjectHideFlags: 0
@@ -853,11 +850,8 @@ MonoBehaviour:
   amplitude: 20
   both: 0
   theBoat: {fileID: 959977186}
-  spinSpeed: 2000
   throwable: 1
-  throwDistance: 15
-  throwVariant: 5
-  flyTime: 2
+  throwForce: 0.25
 --- !u!212 &273089369
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -922,9 +916,9 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.1
-  m_LinearDrag: 0.25
-  m_AngularDrag: 0.05
+  m_Mass: 0.01
+  m_LinearDrag: 2
+  m_AngularDrag: 1
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
