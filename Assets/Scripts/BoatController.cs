@@ -215,6 +215,10 @@ public class BoatController : MonoBehaviour
         return v >= min && v <= max ? 1 : 0;
     }
 
+    public void AdamBayam() 
+    {
+        
+    }
     public void ZoomInControls()
     {
         canvasScaler.scaleFactor += 0.1f;
