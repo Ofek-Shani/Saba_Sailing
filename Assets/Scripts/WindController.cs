@@ -7,7 +7,7 @@ public class WindController : MonoBehaviour
 {
     [SerializeField] float displacement = 3;
     public float windDirection = 0;
-    public int windStrength = 10;
+    public float windStrength = 10f;
     ParticleSystem pt;
     ParticleSystem.EmissionModule emissionModule;
     // ParticleSystem.ShapeModule shapeModule;
@@ -31,7 +31,7 @@ public class WindController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   windStrength = Mathf.Clamp(windStrength, 1f, 15f);
         float boatDirection = boat.transform.rotation.eulerAngles.z;
         // shapeModule.position = boat.transform.position;
         float wdr = boatDirection * Mathf.Deg2Rad; // windDirection * Mathf.Deg2Rad;
@@ -40,7 +40,7 @@ public class WindController : MonoBehaviour
         ParticleSystem.Particle[] particles = new ParticleSystem.Particle[pt.particleCount];
         
         pt.GetParticles(particles);
-        float speed = windStrength * 0.001f * 0.1f; // .5f;
+        float speed = windStrength * 0.001f * 1f; // .5f;
         Vector2 velocity = windDirectionVector * speed;
         for (int i = 0; i < particles.Length; i++)
         {
