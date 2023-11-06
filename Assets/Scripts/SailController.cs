@@ -6,10 +6,10 @@ public class SailController : MonoBehaviour
     [SerializeField] float area;
     public float sailAngle, sailAngleN, force;
     private float sailTension = 0, windBoatAngleN = 0;
-        SpriteRenderer sailSpr;
-        WindController wc;
-        BoatController bc;
-        Animation SailShape;
+    SpriteRenderer sailSpr;
+    WindController wc;
+    BoatController bc;
+    Animation SailShape;
 
 
     void Start()
@@ -19,7 +19,7 @@ public class SailController : MonoBehaviour
         sailSpr = GetComponent<SpriteRenderer>();
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
         bc = GameObject.FindGameObjectWithTag("Boat").GetComponent<BoatController>();
-        SailShape = new Animation(0.1f, 1.25f, this); // one second period, minimum change = 0.1
+        SailShape = new Animation(0.1f, 1.25f); // one second period, minimum change = 0.1
     }
 
     public string ToShortString()
@@ -31,9 +31,11 @@ public class SailController : MonoBehaviour
     }
     public float normalize(float sailAngle) { return sailAngle - 180; }// angle is > 0 on right, and < 0 on left, like windN angle relative to boat.
     public float denormalize(float sailAngleN) { return BoatPhysics.normalized360(sailAngleN + 180); }// angle is > 0 on right, and < 0 on left, like windN angle relative to boat.
-    public void SetTension(float tension) { sailTension = tension; }
-    public void setWindAngle(float windBoatAngleN_) { windBoatAngleN = windBoatAngleN_; }
-    // public void SetSailAngleByTension()
+    public float SailTension
+    {
+        set { sailTension = value; }
+        get { return sailTension; }
+    }
     float changeFactor() { return Time.deltaTime * 10f; }
     // Update is called once per frame
     float elapsed = 0;
@@ -43,7 +45,7 @@ public class SailController : MonoBehaviour
         // if (elapsed < 1f) return;
         float cf = elapsed * 10f; //  changeFactor() ;
         elapsed = 0;
-        windBoatAngleN = bc.getWindBoatAngleN();
+        windBoatAngleN = bc.WindBoatAngleN;
         sailAngle = transform.localRotation.eulerAngles.z; // if changed from inspector - consider this.
         sailAngleN = normalize(sailAngle);
         float windSailDiff = Mathf.Abs(windBoatAngleN) - Mathf.Abs(sailAngleN); // positive when wind pushes sail, negative when it blows it backwards
@@ -100,14 +102,14 @@ public class SailController : MonoBehaviour
         sailAngleN += sign(sailAngleN) * change;
         sailAngleN = minAbs(sailAngleN, targetSailAngleN);
         forceN = force * wc.windStrength / 15f;
-        Debug.LogFormat("trace:{5}, change:{0}, sailAngleN:{1}, changeO:{2}, changeC:{3}, cf:{4}, winSailDiff:{6}", change, sailAngleN, changeO, changeC, cf, trace, windSailDiff) ;
+        // Debug.LogFormat("trace:{5}, change:{0}, sailAngleN:{1}, changeO:{2}, changeC:{3}, cf:{4}, winSailDiff:{6}", change, sailAngleN, changeO, changeC, cf, trace, windSailDiff) ;
         sailAngle = denormalize(sailAngleN); // convert it back to game relative coordinates
         transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
         // ApplyWind();
         CalculateSailShape();
     }
 
-    public float sign(float v) { return v > 0 ? 1 : -1; }
+    public static float sign(float v) { return v > 0 ? 1 : -1; }
 
     public float minAbs(float a, float b) {
         if (sign(a) != sign(b)) return a;
@@ -122,16 +124,16 @@ public class SailController : MonoBehaviour
         forceN = -(isGood ? Mathf.Sin(windSailAngleN) : -Mathf.Abs(Mathf.Sin(windSailAngleN))) * force;
     }
     */
-    class Animation
+    public class Animation
     {
         float from, to;
         float current;
         public bool done = true;
         float totalTime = 0;
         float threshold;
-        float period = 1f;
-        SailController sc;
-        public Animation(float threshold_, float period_, SailController sc_) { threshold = threshold_; period = period_; sc = sc_; }
+        float period = 0.5f;
+        public Animation(float threshold_, float period_) { threshold = threshold_; period = period_; }
+        public void setBoth(float from_, float to_) { from = from_; to = to_;  done = false; totalTime = 0; current = from; }
         public void set(float to_)
         {
             if (!done) return;
@@ -158,7 +160,7 @@ public class SailController : MonoBehaviour
                     done = totalTime >= period ;
                 }
                 if (!done) current = from + totalTime * (to - from) / period;
-                if (Mathf.Abs(current) < threshold) current = sc.sign(current) * threshold;
+                if (Mathf.Abs(current) < threshold) current = SailController.sign(current) * threshold;
                 // Debug.Log("from:" + from + ", to:" + to + ", current:" + current.ToShortString() + ", done:" + done + ", time:" + totalTime.ToShortString());
                 return current;
             }

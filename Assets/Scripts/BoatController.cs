@@ -16,10 +16,19 @@ public class BoatController : MonoBehaviour
     public enum KeelStatus { UP, HALFWAY, DOWN };
     public KeelStatus keelStatus = KeelStatus.UP;
     public Text sailSliderValue;
+    public TMP_Text sailSliderTitle;
+    public Slider sailSlider;
     public Text keelSliderValue;
     public Text steeringSliderValue;
+    public Slider steeringSlider;
+    public Button frotSailButton;
+    public Button mainSailButton;
+    public GameObject frontSailPanel;
+    public GameObject mainSailPanel;
     private CanvasScaler canvasScaler;
-    private bool controlBothSails = true;
+    private Image mainSailPanelImage, frontSailPanelImage;
+    private Color mainSailPanelRestColor, frontSailPanelRestColor;
+    private SailController.Animation steeringAnimation = new SailController.Animation(0.1f, 1f);
 
     [SerializeField] GameObject rudder, keel;
     SpriteRenderer rudderSpr, keelSpr;
@@ -35,14 +44,14 @@ public class BoatController : MonoBehaviour
     // CONSTANTS FOR BOAT
     //[Range(0.0f, 10.0f)]
     //float WATER_DENSITY = 50, BOAT_MASS = 1;
-    [SerializeField] float DRAG_FACTOR = 0.3f;
+    [SerializeField] float DRAG_FACTOR = 1.0f;
+    float ANGULAR_DRAG = 0.5f;
     Dictionary<KeelStatus, float> LATERAL_DRAG_FACTOR = new Dictionary<KeelStatus, float>()
     { {KeelStatus.UP, 1f},
       {KeelStatus.HALFWAY, 2f},
       {KeelStatus.DOWN, 3f},
     };
     float WIND_BODY_FACTOR = .01f;
-    const float ANGULAR_DRAG = 0.5f;
 
     SailController FrontSail, MainSail;
 
@@ -58,7 +67,6 @@ public class BoatController : MonoBehaviour
         instance = this;
     }
 
-    float elapsedTime = 0;
     void Start()
     {
         MainSail = transform.GetChild(0).gameObject.GetComponent<SailController>();
@@ -66,31 +74,87 @@ public class BoatController : MonoBehaviour
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
         Canvas canvas = GameObject.FindGameObjectWithTag("SailingControl").GetComponent<Canvas>();
         canvasScaler = canvas.GetComponent<CanvasScaler>();
-
         rb = GetComponent<Rigidbody2D>();
         rb.angularDrag = ANGULAR_DRAG;
+        rb.drag = DRAG_FACTOR;
+        rudder = transform.GetChild(3).gameObject;
+        keel = transform.GetChild(2).gameObject;
+        rudderSpr = rudder.GetComponent<SpriteRenderer>();
 
         keelSpr = keel.GetComponent<SpriteRenderer>();
         boatText = GameObject.FindGameObjectWithTag("BoatInfo").GetComponent<TMP_Text>();
         sailAngle = MainSail.transform.localEulerAngles.z;
+        mainSailPanelImage = mainSailPanel.GetComponent<Image>();
+        frontSailPanelImage = frontSailPanel.GetComponent<Image>();
+        mainSailPanelRestColor = mainSailPanelImage.color;
+        frontSailPanelRestColor = frontSailPanelImage.color;
+
+}
+
+// Update is called once per frame
+class KeyControl
+    {
+        private KeyCode kc;
+        private bool down = false;
+        public KeyControl(KeyCode kc_) { kc = kc_; }
+        public bool clicked() { 
+            if (Input.GetKey(kc))
+            {
+                if (down) return false;
+                down = true;
+                return true;
+            } else
+            {
+                down = false;
+                return false;
+            }
+        }
     }
 
-    // Update is called once per frame
-    float lastTime = 0;
+    bool useMain = false, useFront = false;
+    public void mainSailClicked() { mainSailFlipped(); }
+    void mainSailFlipped(bool flipOther = true)
+    {
+        useMain = !useMain;
+        mainSailPanelImage.color = useMain ? Color.green : mainSailPanelRestColor; //  new Color(1f, 0.5f, 0.5f, 1f); // pink
+        if (useFront && flipOther) frontSailFlipped(false); // turn it off;
+    }
+    public void frontSailClicked() { frontSailFlipped(); }
+    void frontSailFlipped (bool flipOther = true) {
+        useFront = !useFront;
+        frontSailPanelImage.color = useFront ? Color.green : frontSailPanelRestColor; // new Color(1f, 0.5f, 0.5f, 1f); // pink
+        if (useMain && flipOther) mainSailFlipped(false); // turn it off;
+    }
+
+    bool simulateTension = false;
+    KeyControl useMainK = new KeyControl(KeyCode.S), useFrontK = new KeyControl(KeyCode.W);
     void Update()
     {
-       /* bool boatMode = true; // Time.realtimeSinceStartup < 36f * 5f;
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime - lastTime > 3) {
-           if (boatMode) 
-                transform.localRotation = Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z + 15);
-           else
-           {
-                FrontSail.transform.localRotation = Quaternion.Euler(0, 0, FrontSail.transform.rotation.eulerAngles.z + 10);
-                MainSail.transform.localRotation = Quaternion.Euler(0, 0, MainSail.transform.rotation.eulerAngles.z + 10);
-           }
-           lastTime = elapsedTime;
-        }*/
+        /* bool boatMode = true; // Time.realtimeSinceStartup < 36f * 5f;
+         elapsedTime += Time.deltaTime;
+         if (elapsedTime - lastTime > 3) {
+            if (boatMode) 
+                 transform.localRotation = Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z + 15);
+            else
+            {
+                 FrontSail.transform.localRotation = Quaternion.Euler(0, 0, FrontSail.transform.rotation.eulerAngles.z + 10);
+                 MainSail.transform.localRotation = Quaternion.Euler(0, 0, MainSail.transform.rotation.eulerAngles.z + 10);
+            }
+            lastTime = elapsedTime;
+         }*/
+        if (useMainK.clicked()) mainSailFlipped();
+        if (useFrontK.clicked()) frontSailFlipped();
+        bool setAsMain = useMain, setAsFront = useFront;
+        if (!setAsMain && !setAsFront) setAsMain = setAsFront = true;
+        simulateTension = true; // if sailSlider changes below, ignore the event calls to SetSailTension below.
+        if (setAsMain && setAsFront) { sailSliderTitle.text = "SAILS"; sailSlider.value = Mathf.Clamp((MainSail.SailTension + FrontSail.SailTension) / 2f, 0f, 10f); }
+        else if (setAsMain) { sailSliderTitle.text = "MAIN"; sailSlider.value = MainSail.SailTension; }
+        else if (setAsFront) { sailSliderTitle.text = "FRONT"; sailSlider.value = FrontSail.SailTension; }
+        simulateTension = false; // stop ignoring.
+        if (!steeringAnimation.done)
+        {
+            SetSteering(steeringAnimation.Value);
+        }
         DoPhysics();
     }
       
@@ -102,25 +166,57 @@ public class BoatController : MonoBehaviour
         // Debug.Log(keelStatus);
     }
 
+    float sliderValue = 0;
     public void SetSailTension(Slider sl)
     {
-        MainSail.SetTension(sl.value);
-        if (controlBothSails)
-            FrontSail.SetTension(sl.value);
-        sailSliderValue.text = sl.value.ToString();
+        if (simulateTension) { sliderValue = sl.value; return; }
+        if (sliderValue == sl.value) return;
+        bool main = useMain; // shift - only main
+        bool front = useFront; // control - only front
+        if (!main && !front) main = front = true;
+        float diff = sl.value - sliderValue;
+        if (main) MainSail.SailTension = Mathf.Clamp(MainSail.SailTension + diff, 0f, 10f);
+        if (front) FrontSail.SailTension = Mathf.Clamp(FrontSail.SailTension + diff, 0f, 10f);
+        if (main && front) sliderValue = (MainSail.SailTension + FrontSail.SailTension) / 2f;
+        else sliderValue = sl.value;
+        sl.value = sliderValue;
+        sailSliderValue.text = sliderValue.ToString();
     }
 
 
-    public void SetSteering(Slider sl)
+    public void HitSteeringLeft()
     {
-        rudderAngle = sl.value * 10; // value is -8 to +8 meaning -80 deg, to +80 deg.
-        Debug.Log("rudderAngle: " + rudderAngle);
+        float steeringState = steeringSlider.value;
+        SetSteering(-8f);
+        steeringAnimation.setBoth(-8f, steeringState);
+        rb.AddTorque(Mathf.Abs(-8f - steeringState) * 2f);
+    }
+    public void HitSteeringRight()
+    {
+        float steeringState = steeringSlider.value;
+        SetSteering(8f);
+        steeringAnimation.setBoth(8f, steeringState);
+        rb.AddTorque(-Mathf.Abs(8f - steeringState) * 5f);
+    }
+
+    void SetSteering(float value)
+    {
+        rudderAngle = value * 10; // value is -8 to +8 meaning -80 deg, to +80 deg.
+        // Debug.Log("rudderAngle: " + rudderAngle);
         steeringSliderValue.text = rudderAngle.ToString("F0");
         rudder.transform.localRotation = Quaternion.Euler(0, 0, rudderAngle);
+        steeringSlider.value = value;
+    }
+    public void SetSteering(Slider sl)
+    {
+        SetSteering(sl.value);
     }
 
-    public float windBoatAngleN = 0;
-
+    private float windBoatAngleN = 0;
+    public float WindBoatAngleN
+    {
+        get { return windBoatAngleN; }
+    }
 
     public void ZoomInControls()
     {
@@ -151,26 +247,30 @@ public class BoatController : MonoBehaviour
         Vector2 boatForwardDirection = new Vector2(Mathf.Cos(rad(boatDirection)), Mathf.Sin(rad(boatDirection))) ; //(Quaternion.AngleAxis(boatDirection, Vector3.forward) * Vector2.up).normalized;
         Vector2 boatLateralDirection = new Vector2(boatForwardDirection.y, -boatForwardDirection.x);
         windBoatAngleN = getWindBoatAngleN();  //- boatDirection); normalized so wind blows to the right is > 0, and wind to the left is < 0
-        boatText.text = "Boat:" + boatDirection.ToShortString() + ", wind:" + windDirection.ToShortString() + ", wind-boat:" + windBoatAngleN.ToShortString() + ", " + MainSail.ToShortString();
+        // boatText.text = "Boat:" + boatDirection.ToShortString() + ", wind:" + windDirection.ToShortString() + ", wind-boat:" + windBoatAngleN.ToShortString() + ", " + MainSail.ToShortString();
         Vector2 mainForces = MainSail.GetForcesVector();
         Vector2 frontForces = FrontSail.GetForcesVector();
 
         // our forces are only taking into account the wind here
         Vector2 forwardForceVector = boatForwardDirection * (mainForces[0] + frontForces[0]);
-        Vector2 lateralForceVector = boatLateralDirection * (mainForces[0] + frontForces[0]);
+        Vector2 lateralForceVector = boatLateralDirection * (mainForces[1] + frontForces[1]);
         float forwardVelocity = Vector2.Dot(rb.velocity, boatForwardDirection);
         float lateralVelocity = Vector2.Dot(rb.velocity, boatLateralDirection);
-        rb.AddForce((forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor);
-        float rudderAngleN = rudder.transform.localEulerAngles.z - 180;
-        rb.AddTorque(-sign(rudderAngleN) * Mathf.Cos(rad(90 - Mathf.Abs(rudderAngleN))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 5f);
-        rb.angularDrag = (Mathf.Cos(rad(rudderAngleN) + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 5f);
+        rudderSpr.color = forwardVelocity > 0 ? Color.green : Color.red;
+        // apply force and torque:
+        Vector2 forceVector = (forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor;
+        rb.AddForce(forceVector);
+        float rudderAngleN = BoatPhysics.normalized360(rudder.transform.localEulerAngles.z);
+        rb.AddTorque(SailController.sign(forwardVelocity) * -Mathf.Sin(rad(rudderAngleN)) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 5f);
+        rb.angularDrag = (Mathf.Cos(rad(rudderAngleN)*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f + 1f) * forwardVelocity * 1f);
+        rb.drag = (lateralVelocity * LATERAL_DRAG_FACTOR[keelStatus] / 3f + 2f) * 1f ;
         // Water Drag Force on the boat
 
         //ApplySteeringForce();
         // CalculateSailShape(mainForce, frontForce);
         // Boat rotation and Torque (steering)
 
-        //boatText.text = rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
+        boatText.text = "force: " + forceVector.ToShortString() + " / " + forwardForceVector.ToShortString() + " - " + lateralForceVector.ToShortString() + ". Velocity: " + rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
       
     }
 
@@ -184,14 +284,14 @@ public class BoatController : MonoBehaviour
     float GetLateralDragFactor(KeelStatus keelStatus, float lateralVelocity)
     {
         return Mathf.Max(0f, 1 - LATERAL_DRAG_FACTOR[keelStatus] * DRAG_FACTOR * (1 + 
-            Mathf.Cos(rad(rudder.transform.localEulerAngles.z)) / 3) * lateralVelocity);
+            Mathf.Cos(rad(rudder.transform.localEulerAngles.z)) / 3) * lateralVelocity * lateralVelocity);
     }
 
     float GetForwardDragFactor(Vector2 forwardDirection)
     {
         float forwardVelocity = Vector2.Dot(rb.velocity, forwardDirection);
-        return Mathf.Max(0f, 1 - DRAG_FACTOR * ( 1 + 
-            Mathf.Abs(Mathf.Sin(rad(rudder.transform.localEulerAngles.z)))/ 3) * forwardVelocity);
+        return Mathf.Max(1f); // 0f, 1 - DRAG_FACTOR * ( 1 + 
+            // Mathf.Abs(Mathf.Sin(rad(rudder.transform.localEulerAngles.z)))/ 3) * forwardVelocity * forwardVelocity);
     }
 
     Vector2 GetCombinedSailForces()
