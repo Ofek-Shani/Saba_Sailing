@@ -11,6 +11,7 @@ public class Buoy : MonoBehaviour
     public bool throwable = false;
     public float throwForce = 0.25f;
     Rigidbody2D rb;
+    SpriteRenderer sr;
 
 
     // Start is called before the first frame update
@@ -20,10 +21,20 @@ public class Buoy : MonoBehaviour
         if (throwable)
         {
             gameObject.SetActive(false);
-            transform.position = new Vector3(0f, 0f, transform.position.z);
+            transform.localPosition = Vector3.zero; //  new Vector3(0f, 0f, transform.position.z);
         }
+        sr = GetComponent<SpriteRenderer>();
+        //sr.PointerClicked += HandlePointerClicked;
     }
 
+    void OnMouseDown()
+    {
+        if (throwable)
+        {
+            transform.position = Vector3.zero;
+            gameObject.SetActive(false);
+        }
+    }
     void Update()
     {
         Quaternion rotation = transform.rotation;

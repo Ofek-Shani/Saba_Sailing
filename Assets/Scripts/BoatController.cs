@@ -195,7 +195,7 @@ class KeyControl
         float steeringState = steeringSlider.value;
         SetSteering(-8f);
         steeringAnimation.setBoth(-8f, steeringState);
-        float torque = Mathf.Abs(-8f - steeringState) * 2f;
+        float torque = Mathf.Abs(-8f - steeringState) * 1.5f;
         rb.AddTorque(torque);
     }
     public void HitSteeringRight()
@@ -203,7 +203,7 @@ class KeyControl
         float steeringState = steeringSlider.value;
         SetSteering(8f);
         steeringAnimation.setBoth(8f, steeringState);
-        float torque = -Mathf.Abs(8f - steeringState) * 2f;
+        float torque = -Mathf.Abs(8f - steeringState) * 1.5f;
         rb.AddTorque(torque);
     }
 
@@ -268,7 +268,7 @@ class KeyControl
         // apply force and torque:
         //Vector2 forceVector = (forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor;
         float ldf = GetLateralDragFactor(keelStatus, lateralVelocity);
-        Debug.Log("ldf:" + ldf);
+        // Debug.Log("ldf:" + ldf);
         Vector2 forceVector = (forwardForceVector + lateralForceVector * ldf) * Time.deltaTime * boatForceFactor;
         if ((ancor != null && !ancor.isOn) || ancor == null) 
             rb.AddForce(forceVector);
@@ -278,7 +278,7 @@ class KeyControl
         if (Mathf.Abs(rudderAngleN) > 10f) 
             torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
         rb.AddTorque(torque);
-        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.75f;
+        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
         rb.angularDrag = angularDrag;
         float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.25f ;
         rb.drag = drag;

@@ -9,6 +9,7 @@ TagManager:
   - SailingControl
   - Boat
   - ancor
+  - gesture
   layers:
   - Default
   - TransparentFX
