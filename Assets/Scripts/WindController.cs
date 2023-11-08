@@ -34,14 +34,14 @@ public class WindController : MonoBehaviour
         float boatDirection = boat.transform.rotation.eulerAngles.z;
         // shapeModule.position = boat.transform.position;
         float wdr = windDirection * Mathf.Deg2Rad;
-        Vector3 windDirectionVector = new Vector3(Mathf.Cos(wdr), Mathf.Sin(wdr), 0) * windStrength;
+        Vector2 windDirectionVector = new Vector3(Mathf.Cos(wdr), Mathf.Sin(wdr)) * windStrength;
         emissionModule.rateOverTime = windStrength*10f;
         ParticleSystem.Particle[] particles = new ParticleSystem.Particle[pt.particleCount];
         ParticleSystem.MainModule mainModule = pt.main;
         mainModule.maxParticles = (int)(windStrength / 15f * 750) + 250;
         mainModule.simulationSpeed = 5f + windStrength / 2f;
         pt.GetParticles(particles);
-        float speed = 15 /*windStrength*/ * 0.001f * 1f; // .5f;
+        float speed = 15 /*windStrength*/  / 2000f; // .5f;
         Vector2 velocity = windDirectionVector * speed;
         for (int i = 0; i < particles.Length; i++)
         {

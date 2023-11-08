@@ -81,7 +81,7 @@ public class SailController : MonoBehaviour
                     force = sign(windSailDiff) * 0.1f;
                     change = sign(windSailDiff) * Mathf.Min(Mathf.Abs(windSailDiff) + 10, changeO); // positive means decrease abs of angle.
                 }
-                else if (windSailDiff < -10) // wind blows above the sail - pushong it inward.
+                else if (windSailDiff < -10) // wind blows above the sail - pushing it inward.
                 {
                     trace += "B";
                     force = Mathf.Sin(windSailDiff * Mathf.Deg2Rad);
@@ -91,6 +91,8 @@ public class SailController : MonoBehaviour
                 {
                     trace += "C";
                     regular();
+                    if (windSailDiff < 45) force = force * (1f + Mathf.Sin((windSailDiff - 10) / 35 * Mathf.PI));
+
                 }
             } else // wind and sail on same side.
             {
@@ -196,7 +198,7 @@ public class SailController : MonoBehaviour
     public Vector2 GetForcesVector()
     {
         float angle = (90 - Mathf.Abs(sailAngleN)) * Mathf.Deg2Rad;
-        Vector2 temp = new Vector2(force * Mathf.Cos(angle), force * Mathf.Sin(angle));
+        Vector2 temp = new Vector2(force * Mathf.Cos(angle), sign(sailAngleN) * force * Mathf.Sin(angle));
         return temp;
     }
 

@@ -33,13 +33,14 @@ public class BoatController : MonoBehaviour
     [SerializeField] GameObject rudder, keel;
     SpriteRenderer rudderSpr, keelSpr;
     [SerializeField] Sprite[] keelSprites;
-    [SerializeField] float boatForceFactor = 1f;
+    [SerializeField] float boatForceFactor = 3f;
         
 
     WindController wc;
     Rigidbody2D rb;
 
-    TMP_Text boatText;
+    TMP_Text angDvalueText, linDvalueText, fwdFvalueText, latFvalueText;
+    Toggle ancor;
 
     // CONSTANTS FOR BOAT
     //[Range(0.0f, 10.0f)]
@@ -82,7 +83,12 @@ public class BoatController : MonoBehaviour
         rudderSpr = rudder.GetComponent<SpriteRenderer>();
 
         keelSpr = keel.GetComponent<SpriteRenderer>();
-        boatText = GameObject.FindGameObjectWithTag("BoatInfo").GetComponent<TMP_Text>();
+        GameObject[] boatTexts = GameObject.FindGameObjectsWithTag("BoatInfo"); //.GetComponent<TMP_Text>();
+        angDvalueText = boatTexts[1].GetComponent<TMP_Text>();
+        linDvalueText = boatTexts[3].GetComponent<TMP_Text>();
+        fwdFvalueText = boatTexts[5].GetComponent<TMP_Text>();
+        latFvalueText = boatTexts[7].GetComponent<TMP_Text>();
+        ancor = GameObject.FindGameObjectWithTag("ancor").GetComponent<Toggle>();
         sailAngle = MainSail.transform.localEulerAngles.z;
         mainSailPanelImage = mainSailPanel.GetComponent<Image>();
         frontSailPanelImage = frontSailPanel.GetComponent<Image>();
@@ -189,14 +195,16 @@ class KeyControl
         float steeringState = steeringSlider.value;
         SetSteering(-8f);
         steeringAnimation.setBoth(-8f, steeringState);
-        rb.AddTorque(Mathf.Abs(-8f - steeringState) * 2f);
+        float torque = Mathf.Abs(-8f - steeringState) * 2f;
+        rb.AddTorque(torque);
     }
     public void HitSteeringRight()
     {
         float steeringState = steeringSlider.value;
         SetSteering(8f);
         steeringAnimation.setBoth(8f, steeringState);
-        rb.AddTorque(-Mathf.Abs(8f - steeringState) * 5f);
+        float torque = -Mathf.Abs(8f - steeringState) * 2f;
+        rb.AddTorque(torque);
     }
 
     void SetSteering(float value)
@@ -258,20 +266,43 @@ class KeyControl
         float lateralVelocity = Vector2.Dot(rb.velocity, boatLateralDirection);
         rudderSpr.color = forwardVelocity > 0 ? Color.green : Color.red;
         // apply force and torque:
-        Vector2 forceVector = (forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor;
-        rb.AddForce(forceVector);
-        float rudderAngleN = BoatPhysics.normalized360(rudder.transform.localEulerAngles.z);
-        rb.AddTorque(SailController.sign(forwardVelocity) * -Mathf.Sin(rad(rudderAngleN)) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 5f);
-        rb.angularDrag = (Mathf.Cos(rad(rudderAngleN)*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f + 1f) * forwardVelocity * 1f);
-        rb.drag = (lateralVelocity * LATERAL_DRAG_FACTOR[keelStatus] / 3f + 2f) * 1f ;
+        //Vector2 forceVector = (forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor;
+        float ldf = GetLateralDragFactor(keelStatus, lateralVelocity);
+        Debug.Log("ldf:" + ldf);
+        Vector2 forceVector = (forwardForceVector + lateralForceVector * ldf) * Time.deltaTime * boatForceFactor;
+        if ((ancor != null && !ancor.isOn) || ancor == null) 
+            rb.AddForce(forceVector);
+        float rudderAngleN = rudder.transform.localEulerAngles.z;
+        if (rudderAngleN > 180) rudderAngleN -= 360;
+        float torque = 0;
+        if (Mathf.Abs(rudderAngleN) > 10f) 
+            torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
+        rb.AddTorque(torque);
+        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.75f;
+        rb.angularDrag = angularDrag;
+        float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.25f ;
+        rb.drag = drag;
         // Water Drag Force on the boat
 
         //ApplySteeringForce();
         // CalculateSailShape(mainForce, frontForce);
         // Boat rotation and Torque (steering)
 
-        boatText.text = "force: " + forceVector.ToShortString() + " / " + forwardForceVector.ToShortString() + " - " + lateralForceVector.ToShortString() + ". Velocity: " + rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
-      
+        /*
+         * boatText.text = "F: " + forwardForceVector.magnitude.ToShortString() + 
+            "/" + lateralForceVector.magnitude.ToShortString() + 
+            ", V: " + forwardVelocity.ToShortString() + 
+            "/" + lateralVelocity.ToShortString() +
+            ", tQ: " + torque.ToShortString() + ", aDrag: " + angularDrag.ToShortString() + ", drag: " + drag.ToShortString(); //" / " + forwardForceVector.ToShortString() + " - " + lateralForceVector.ToShortString() + ". Velocity: " + rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
+        */
+        if (angDvalueText != null)
+        {
+            angDvalueText.text = angularDrag.ToShortString();
+            linDvalueText.text = drag.ToShortString();
+            fwdFvalueText.text = forwardForceVector.magnitude.ToShortString();
+            latFvalueText.text = lateralForceVector.magnitude.ToShortString();
+        }
+
     }
 
     void ApplySteeringForce()
@@ -283,8 +314,8 @@ class KeyControl
 
     float GetLateralDragFactor(KeelStatus keelStatus, float lateralVelocity)
     {
-        return Mathf.Max(0f, 1 - LATERAL_DRAG_FACTOR[keelStatus] * DRAG_FACTOR * (1 + 
-            Mathf.Cos(rad(rudder.transform.localEulerAngles.z)) / 3) * lateralVelocity * lateralVelocity);
+        return Mathf.Max(0f, (1 + LATERAL_DRAG_FACTOR[KeelStatus.DOWN] - LATERAL_DRAG_FACTOR[keelStatus]) / LATERAL_DRAG_FACTOR[KeelStatus.DOWN]) * 0.25f; 
+            // (1 + Mathf.Cos(rad(rudder.transform.localEulerAngles.z)) / 3) * lateralVelocity * lateralVelocity);
     }
 
     float GetForwardDragFactor(Vector2 forwardDirection)

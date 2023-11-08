@@ -8,6 +8,7 @@ TagManager:
   - BoatInfo
   - SailingControl
   - Boat
+  - ancor
   layers:
   - Default
   - TransparentFX
