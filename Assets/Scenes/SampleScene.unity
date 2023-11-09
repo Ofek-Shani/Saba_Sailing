@@ -1210,6 +1210,7 @@ MonoBehaviour:
   adamBayam: {fileID: 596184191}
   plus: {fileID: 925114610}
   minus: {fileID: 560068715}
+  adamBayamBuoy: {fileID: 273089365}
 --- !u!4 &272270750
 Transform:
   m_ObjectHideFlags: 0

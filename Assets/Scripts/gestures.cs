@@ -8,7 +8,8 @@ public class gestures : MonoBehaviour
 {
     [SerializeField] Slider sails, steering, keel;
     public Button hitLeft, hitRight, adamBayam, plus, minus;
-
+    public GameObject adamBayamBuoy;
+    bool adamBayamIsOn = false;
     class KeyTracking
     {
         KeyCode keyCode;
@@ -57,7 +58,19 @@ public class gestures : MonoBehaviour
     {
         if (hitLeftK.clicked()) hitLeft.onClick.Invoke();
         if (hitRightK.clicked()) hitRight.onClick.Invoke();
-        if (adamBayamK.clicked()) adamBayam.onClick.Invoke();
+        if (adamBayamK.clicked())
+        {
+            if (adamBayamIsOn)
+            {
+                adamBayamIsOn = false;
+                adamBayamBuoy.SendMessage("OnMouseDown");
+            }
+            else
+            {
+                adamBayam.onClick.Invoke();
+                adamBayamIsOn = true;
+            }
+        }
         if (plusK.clicked()) plus.onClick.Invoke();
         if (minusK.clicked()) minus.onClick.Invoke();
         if (sailsUpK.clicked()) sails.value = Mathf.Max(sails.minValue, sails.value - 1);
