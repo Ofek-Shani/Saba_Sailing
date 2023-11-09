@@ -194,7 +194,7 @@ class KeyControl
     {
         float steeringState = steeringSlider.value;
         SetSteering(-8f);
-        steeringAnimation.setBoth(-8f, steeringState);
+        steeringAnimation.setBoth(-8f, 0);
         float torque = Mathf.Abs(-8f - steeringState) * 1.5f;
         rb.AddTorque(torque);
     }
@@ -202,7 +202,7 @@ class KeyControl
     {
         float steeringState = steeringSlider.value;
         SetSteering(8f);
-        steeringAnimation.setBoth(8f, steeringState);
+        steeringAnimation.setBoth(8f, 0);
         float torque = -Mathf.Abs(8f - steeringState) * 1.5f;
         rb.AddTorque(torque);
     }
@@ -278,7 +278,7 @@ class KeyControl
         if (Mathf.Abs(rudderAngleN) > 10f) 
             torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
         rb.AddTorque(torque);
-        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*0.5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
+        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
         rb.angularDrag = angularDrag;
         float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.25f ;
         rb.drag = drag;
