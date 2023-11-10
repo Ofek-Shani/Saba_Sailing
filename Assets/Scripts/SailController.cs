@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.VisualScripting;
+// (c) 2023 copyright Uri Shani, Ofek Shani
 
 public class SailController : MonoBehaviour
 {

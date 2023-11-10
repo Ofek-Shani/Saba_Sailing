@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+// (c) 2023 copyright Uri Shani, Ofek Shani
 
 public class WindController : MonoBehaviour
 {

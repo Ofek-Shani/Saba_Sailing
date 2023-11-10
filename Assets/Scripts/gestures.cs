@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+// (c) 2023 copyright Uri Shani, Ofek Shani
 
 
 public class gestures : MonoBehaviour
@@ -9,6 +10,7 @@ public class gestures : MonoBehaviour
     [SerializeField] Slider sails, steering, keel;
     public Button hitLeft, hitRight, adamBayam, plus, minus;
     public GameObject adamBayamBuoy;
+    // public Camera camera;
     bool adamBayamIsOn = false;
     class KeyTracking
     {
@@ -47,7 +49,9 @@ public class gestures : MonoBehaviour
         plusK = new KeyTracking(KeyCode.Equals),
         minusK = new KeyTracking(KeyCode.Minus),
         keelUpK = new KeyTracking(KeyCode.PageUp),
-        keelDownK = new KeyTracking(KeyCode.PageDown);
+        keelDownK = new KeyTracking(KeyCode.PageDown),
+        zoomK = new KeyTracking(KeyCode.Z),
+        followK = new KeyTracking(KeyCode.X);
     // Start is called before the first frame update
     void Start()
     {
@@ -79,6 +83,8 @@ public class gestures : MonoBehaviour
         if (steeringRight.clicked()) steering.value = Mathf.Min(steering.maxValue, steering.value + 1);
         if (keelUpK.clicked()) keel.value = Mathf.Max(keel.minValue, keel.value - 1);
         if (keelDownK.clicked()) keel.value = Mathf.Min(keel.maxValue, keel.value + 1);
+        if (zoomK.clicked()) { Camera.main.orthographicSize = (Camera.main.orthographicSize == 10f) ? 30f: 10f; }
+        if (followK.clicked()) { CameraController.Instance.withOrientation = !CameraController.Instance.withOrientation; }
 
     }
 }

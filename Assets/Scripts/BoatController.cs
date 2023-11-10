@@ -3,7 +3,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.UI;
 using UnityEngine;
-
+// (c) 2023 copyright Uri Shani, Ofek Shani
 
 
 public class BoatController : MonoBehaviour
