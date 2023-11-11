@@ -1,17 +1,21 @@
 using UnityEngine;
 using Unity.VisualScripting;
+using System.Collections;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
 public class SailController : MonoBehaviour
 {
     [SerializeField] float area;
+    public Sprite waivy, sail;
+
     public float sailAngle, sailAngleN, force;
     private float sailTension = 0, windBoatAngleN = 0;
     SpriteRenderer sailSpr;
     WindController wc;
     BoatController bc;
-    Animation SailShape;
+    SpriteRenderer sr;
 
+    Animation SailShape;
 
     void Start()
     {
@@ -20,7 +24,9 @@ public class SailController : MonoBehaviour
         sailSpr = GetComponent<SpriteRenderer>();
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
         bc = GameObject.FindGameObjectWithTag("Boat").GetComponent<BoatController>();
-        SailShape = new Animation(0.1f, 1.25f); // one second period, minimum change = 0.1
+        sr = GetComponent<SpriteRenderer>();
+        SailShape = new Animation(0.05f, 0.5f); // one second period, minimum change = 0.1
+    //    StartWaivy(); // used to render the sail loose when againes the wind.
     }
 
     public string ToShortString()
@@ -92,7 +98,7 @@ public class SailController : MonoBehaviour
                 {
                     trace += "C";
                     regular();
-                    if (windSailDiff < 45) force = force * (1f + Mathf.Sin((windSailDiff - 10) / 35 * Mathf.PI));
+                    if (windSailDiff < 45) force = force * (1f + Mathf.Cos((windSailDiff - 10) / 35 * Mathf.PI / 2)); // add wing lift effect
 
                 }
             } else // wind and sail on same side.
@@ -100,6 +106,13 @@ public class SailController : MonoBehaviour
                 trace += "D";
                 regular();
             }
+
+            if (Mathf.Abs(windSailDiff) <= 10) { // sail is loose
+                sr.sprite = waivy;
+            } else {
+                sr.sprite = sail;
+            }
+
 
         }
         sailAngleN += sign(sailAngleN) * change;
@@ -110,6 +123,7 @@ public class SailController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
         // ApplyWind();
         CalculateSailShape();
+    //    waivyShape(windSailDiff);
     }
 
     public static float sign(float v) { return v > 0 ? 1 : -1; }
@@ -127,6 +141,13 @@ public class SailController : MonoBehaviour
         forceN = -(isGood ? Mathf.Sin(windSailAngleN) : -Mathf.Abs(Mathf.Sin(windSailAngleN))) * force;
     }
     */
+
+    private void StartWaivy()
+    {
+        sr = GetComponent<SpriteRenderer>();
+        sr.sprite = sail;
+    }
+
     public class Animation
     {
         float from, to;
@@ -171,14 +192,20 @@ public class SailController : MonoBehaviour
     }
 
 
+    static Color POS = Color.green, NEG = Color.red, LOW = Color.yellow;
+    Color sailColor = POS;
     public void CalculateSailShape()
     {
+     //   if (waivyTimer >= 0) { return;}
         const float minScale = 0.45f;
-        float scaleY = sign(sailAngleN) * sign(forceN) * Mathf.Min(1f, Mathf.Max(minScale, Mathf.Abs(forceN)));
+        float scaleY = sign(sailAngleN) * sign(forceN) * 
+            Mathf.Clamp(Mathf.Abs(forceN), minScale, 1f);
         SailShape.set(scaleY);
         scaleY = SailShape.Value;
         transform.localScale = new Vector3(transform.localScale.x, scaleY, 1);
-        sailSpr.color = Mathf.Abs(forceN) < 0.25 ? Color.white : (forceN < 0 ? Color.red : Color.green);
+        if (Mathf.Abs(forceN) < 0.25) sailSpr.color = LOW;
+        else if (forceN < -0.25 && sailColor == POS) { sailColor = sailSpr.color = NEG; }
+        else /* forceN > 0.25*/ {sailColor = sailSpr.color = POS; }
     }
 
     /*

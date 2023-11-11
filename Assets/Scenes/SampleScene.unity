@@ -2293,7 +2293,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 40
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -12495,6 +12495,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   area: 0
+  waivy: {fileID: 21300000, guid: aac3879461de6e742b06bd4ca42236d1, type: 3}
+  sail: {fileID: 21300000, guid: 06889b2e1ae35bc418c997d5811447e5, type: 3}
   sailAngle: 0
   sailAngleN: 0
   force: 0
@@ -12596,6 +12598,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   area: 0
+  waivy: {fileID: 21300000, guid: aac3879461de6e742b06bd4ca42236d1, type: 3}
+  sail: {fileID: 21300000, guid: 06889b2e1ae35bc418c997d5811447e5, type: 3}
   sailAngle: 0
   sailAngleN: 0
   force: 0

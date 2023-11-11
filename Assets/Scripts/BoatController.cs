@@ -278,9 +278,9 @@ class KeyControl
         if (Mathf.Abs(rudderAngleN) > 10f) 
             torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
         rb.AddTorque(torque);
-        float angularDrag = (Mathf.Cos(rad(rudderAngleN))*5f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
+        float angularDrag = (Mathf.Clamp(Mathf.Cos(rad(rudderAngleN)*2),0,1f)*3f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
         rb.angularDrag = angularDrag;
-        float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.25f ;
+        float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.15f ;
         rb.drag = drag;
         // Water Drag Force on the boat
 
