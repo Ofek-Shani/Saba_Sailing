@@ -13,11 +13,14 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, toFollow.transform.position, .01f) + Vector3.back;
+        transform.position = Vector3.Lerp(transform.position, toFollow.transform.position, 0.1f) + Vector3.back;
+        Quaternion tobe = toFollow.transform.rotation;
         if (withOrientation) {
-            Quaternion tobe = toFollow.transform.rotation;
-//            tobe.z = (tobe.z + 90f) % 360;
-            transform.rotation = Quaternion.Lerp(transform.rotation, tobe, 0.1f);
-        }
+            tobe = Quaternion.Euler(0f, 0f, tobe.eulerAngles.z - 90f);
+        } else {
+            tobe = Quaternion.Euler(0f, 0f, 0f); //.eulerAngles.z = 0; 
+        } 
+        if (transform.rotation.eulerAngles.z != tobe.eulerAngles.z) 
+            transform.rotation = tobe;
     }
 }
