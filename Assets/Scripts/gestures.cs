@@ -51,15 +51,46 @@ public class gestures : MonoBehaviour
         keelUpK = new KeyTracking(KeyCode.PageUp),
         keelDownK = new KeyTracking(KeyCode.PageDown),
         zoomK = new KeyTracking(KeyCode.Z),
-        followK = new KeyTracking(KeyCode.X);
+        followK = new KeyTracking(KeyCode.X),
+        f11K = new KeyTracking(KeyCode.F11),
+        exitK = new KeyTracking(KeyCode.C);
+
+    bool isFullScreen = false;
     // Start is called before the first frame update
     void Start()
     {
-        
+
+    }
+
+    void TestExitRequested()
+    { // exits the game if CTRL-C is clicked.
+        if (exitK.clicked() && (
+            Input.GetKey(KeyCode.LeftControl) ||
+            Input.GetKey(KeyCode.RightControl)))
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+            Debug.Log("Exit requested");
+        }
+    }
+
+    void TestToggleScreenSizeRequested()
+    {
+        if (f11K.clicked())
+        {
+            isFullScreen = !isFullScreen;
+            Debug.Log("isFullScreen: " + isFullScreen);
+        }
+        Screen.fullScreen = isFullScreen;
     }
     // Update is called once per frame
     void Update()
     {
+        TestToggleScreenSizeRequested();
+        TestExitRequested();
         if (hitLeftK.clicked()) hitLeft.onClick.Invoke();
         if (hitRightK.clicked()) hitRight.onClick.Invoke();
         if (adamBayamK.clicked())
@@ -83,7 +114,7 @@ public class gestures : MonoBehaviour
         if (steeringRight.clicked()) steering.value = Mathf.Min(steering.maxValue, steering.value + 1);
         if (keelUpK.clicked()) keel.value = Mathf.Max(keel.minValue, keel.value - 1);
         if (keelDownK.clicked()) keel.value = Mathf.Min(keel.maxValue, keel.value + 1);
-        if (zoomK.clicked()) { Camera.main.orthographicSize = (Camera.main.orthographicSize == 10f) ? 30f: 10f; }
+        if (zoomK.clicked()) { Camera.main.orthographicSize = (Camera.main.orthographicSize == 10f) ? 30f : 10f; }
         if (followK.clicked()) { CameraController.Instance.withOrientation = !CameraController.Instance.withOrientation; }
 
     }

@@ -30,7 +30,7 @@ various types of maneuvers.
 1. rudder with 8 positions each side. 
 1. The boat has a life saver buoy to 
 create "man in water" alerts and maneuvers. 
-1. Wind power on sails compues both blowing wind and air flow affect over the sails as wings at
+1. Wind power on sails computes both blowing wind and air flow affect over the sails as wings at
 tight angles. 
 1. Sails shape reflects the wind blow force applied to them.
 1. When wind blows on loose sails, they flicker from side to side to show that. 
@@ -38,29 +38,40 @@ tight angles.
 with care. 
 1. Rudder is also affecting the boat drag according to its position, so if set to 90 degrees, it will not cause turn, but slow the boat.
 1. Colors of sails reflects direction of wind blow side (green when positive, red when negative). 
-1. Rudder color reflect boat speed forward or backward. When boat velocity is negative, the rudder affects the boar turning in a reverse manner.
+1. Rudder color reflect boat speed forward or backward. When boat velocity is negative, the rudder affects the boat turning in a reverse manner.
 
 ## Installation
-Currently, the software is a Unity studio IDE project. Using Visual Studio coding environment and debuging, but it can also use other code editing IDEs.
+1. Get the project from GIT and use the Unity Editor to run the game.
+2. Windows 64-bits: Unzip the installaiton file and run the **Sailing.exe** executable for a full screen experience.
+3. Future: APK file for the Android devices.
 
 ## Usage
-The game has UI controls as well as short-hand keyboard keys as follows:
-1. rudder: move slider left and right, or use the left and right arrow keyboard keys
-1. sail Tension: move slider up or down, or use the up and down arrow keyboard keys
-1. keel position: up, middle or full via a 3 position vertical slider, or use the up and down Page keys on the keyboard.
-1. Two button on left allow to select front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. 
-If both are no selected, slider and keys control both sails together.
-1. a blue left and right arrows when clicked perform a sudden kick of the rudder to the left or the right to help getting the boat out of stalling when 
-facing wind for instance. Keyboard left and right Shift are short cut keys for the same purpose.
-1. ANCOR is a checkbox that when on will not apply the sails force on the boat so it does not move, so the different controls over the boat can be tried out.
-1. Tracking info display on top left. Four parameters:
-    1. ANG D. is the Angular Drag which slows boat turning.
-    1. LIN D. is the linear Drag which slows the boat velocity on all directions.
-    1. FWD F. is the wind force that is applied on the boat forward direction.
-    1. LAT F. is the wind force that is applied on the lateral direction.
+The game has GUI controls as well as short-hand keyboard keys to manage the different boat parts when sailing as in the following table:
+
+| Part | GUI | Keyboard |
+| -------- | -------- | -------- |
+|Rudder | Move horizontal slider left and right | Use **left arrow** and **right arrow** keys.|
+|Sail Tension| Move left slider up or down| Use **up arrow** and **down arrow** keys.|
+|Keel position: up, middle or full| Move the 3 position vertical slider on right| Use the **PgUp** and **PgDown** keys.|
+|Sail selection| Two button on bottom left screen allow to select front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. If both are **not** selected, slider and keys control both sails together. | Use the **W** key for front sail, and **S** key for main sail.|
+|Kick rudder| A blue left and right arrows, perform a sudden kick of the rudder to the left or the right respectfully, when clicked. This can help getting the boat out of stalling when facing wind for instance.| Use the **Left shift** and **Right Shift** keys respectfully.|
+|Ancor the boat| The checkbox **ANCOR** on top left of the screen. When checked, the sails force is **not** applied the boat so it stops moving, and the different controls over the boat can be tried out|
+| Zoom in/out | No GUI | Use the **Z** key to toggle between zoom out and in of the scene.|
+| Track option| No GUI | Use the **X** key to toggle between whether camera follows the boat direction, or stays fixed to the north (screen upwards).|
+| Control panel sizing| Clicking on the green **+** button increases size of all GUI elements, clicking the red **-** (minus) button decreases them. | Use the **+** keyboard (the + and = key, without using shift!) for size increase, and the **-** (minus and underline key) to decrease.|
+|Quit the program| No GUI | **\<CTRL>-C** - hold the control key and click **C**.|
+|Toggle full screen| No GUI | **F11** - click the function key F11.|
+
+## Tracking info
+Display on top left showing the vlaues of four parameters dnamically:
+1. ANG D. is the Angular Drag which slows boat turning.
+2. LIN D. is the linear Drag which slows the boat velocity on all directions.
+3. FWD F. is the wind force that is applied on the boat forward direction.
+4. LAT F. is the wind force that is applied on the lateral direction.
+
 
 ## Contributing
 The project is presently private so contributions are limited.
 
 ## License
-This project is licensed under the [Uri](mailto:uri.shani@gmail.com) and [Ofek](mailto:ofeka.shani@gmail.com) Copyrights. Refer to the [LICENSE](LICENSE.txt) file for more information.
+This project is licensed under the [Uri](mailto:uri.shani@gmail.com) and [Ofek](mailto:ofeka.shani@gmail.com) Copyrights. Refer to the LICENS.TXT file for more information.
