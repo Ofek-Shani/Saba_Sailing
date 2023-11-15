@@ -38,7 +38,7 @@ tight angles.
 with care. 
 1. Rudder is also affecting the boat drag according to its position, so if set to 90 degrees, it will not cause turn, but slow the boat.
 1. Colors of sails reflects direction of wind blow side (green when positive, red when negative). 
-1. Rudder color reflect boat speed forward or backward. When boat velocity is negative, the rudder affects the boat turning in a reverse manner.
+1. Rudder color reflects boat speed forward or backward. When boat velocity is negative, the rudder affects the boat turning in a reverse manner.
 
 ## Installation
 1. Get the project from GIT and use the Unity Editor to run the game.
@@ -48,7 +48,7 @@ with care.
 ## Usage
 The game has GUI controls as well as short-hand keyboard keys to manage the different boat parts when sailing as in the following table:
 
-| Part | GUI | Keyboard |
+| Part | GUI | Keyboard (for the PC version) |
 | -------- | -------- | -------- |
 |Rudder | Move horizontal slider left and right | Use **left arrow** and **right arrow** keys.|
 |Sail Tension| Move left slider up or down| Use **up arrow** and **down arrow** keys.|
