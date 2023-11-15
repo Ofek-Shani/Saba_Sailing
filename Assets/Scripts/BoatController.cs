@@ -84,10 +84,10 @@ public class BoatController : MonoBehaviour
 
         keelSpr = keel.GetComponent<SpriteRenderer>();
         GameObject[] boatTexts = GameObject.FindGameObjectsWithTag("BoatInfo"); //.GetComponent<TMP_Text>();
-        angDvalueText = boatTexts[1].GetComponent<TMP_Text>();
-        linDvalueText = boatTexts[3].GetComponent<TMP_Text>();
-        fwdFvalueText = boatTexts[5].GetComponent<TMP_Text>();
-        latFvalueText = boatTexts[7].GetComponent<TMP_Text>();
+        angDvalueText = boatTexts[0].GetComponent<TMP_Text>();
+        linDvalueText = boatTexts[1].GetComponent<TMP_Text>();
+        fwdFvalueText = boatTexts[2].GetComponent<TMP_Text>();
+        latFvalueText = boatTexts[3].GetComponent<TMP_Text>();
         ancor = GameObject.FindGameObjectWithTag("ancor").GetComponent<Toggle>();
         sailAngle = MainSail.transform.localEulerAngles.z;
         mainSailPanelImage = mainSailPanel.GetComponent<Image>();
@@ -275,7 +275,7 @@ class KeyControl
         float rudderAngleN = rudder.transform.localEulerAngles.z;
         if (rudderAngleN > 180) rudderAngleN -= 360;
         float torque = 0;
-        if (Mathf.Abs(rudderAngleN) > 10f) 
+        if (Mathf.Abs(rudderAngleN) > 5f) 
             torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
         rb.AddTorque(torque);
         float angularDrag = (Mathf.Clamp(Mathf.Cos(rad(rudderAngleN)*2),0,1f)*3f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;

@@ -1346,7 +1346,7 @@ GameObject:
   - component: {fileID: 351187450}
   m_Layer: 0
   m_Name: Adt (TMP)
-  m_TagString: BoatInfo
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1557,7 +1557,7 @@ GameObject:
   - component: {fileID: 441881659}
   m_Layer: 0
   m_Name: LFt (TMP)
-  m_TagString: BoatInfo
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1736,7 +1736,7 @@ GameObject:
   - component: {fileID: 446458432}
   - component: {fileID: 446458431}
   m_Layer: 0
-  m_Name: Data
+  m_Name: Data Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2383,7 +2383,7 @@ GameObject:
   - component: {fileID: 585676192}
   m_Layer: 0
   m_Name: FFt (TMP)
-  m_TagString: BoatInfo
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11546,7 +11546,7 @@ GameObject:
   - component: {fileID: 1860471886}
   m_Layer: 0
   m_Name: copyright
-  m_TagString: BoatInfo
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12641,7 +12641,7 @@ GameObject:
   - component: {fileID: 2127868746}
   m_Layer: 0
   m_Name: Ldt (TMP)
-  m_TagString: BoatInfo
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
