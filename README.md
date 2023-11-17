@@ -77,4 +77,4 @@ Display on top left showing the vlaues of four parameters dnamically:
 The project is presently private so contributions are limited.
 
 ## License
-This project is licensed under the [Uri](mailto:uri.shani@gmail.com) and [Ofek](mailto:ofeka.shani@gmail.com) Copyrights. Refer to the [LICENS](LICENS.TXT) file for more information.
+This project is licensed under the [Uri](mailto:uri.shani@gmail.com) and [Ofek](mailto:ofeka.shani@gmail.com) Copyrights. Refer to the [LICENSE](LICENSE.txt) file for more information.
