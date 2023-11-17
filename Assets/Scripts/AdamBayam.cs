@@ -13,10 +13,15 @@ public class AdamBayam : Buoy
 
     protected override void Start_()
     {
+        instance = this;
         gameObject.SetActive(false);
         transform.localPosition = Vector3.zero; //  new Vector3(0f, 0f, transform.position.z);
     }
 
+    static AdamBayam instance;
+    public static AdamBayam Instance {
+        get { return instance; }
+    }
     float animateTime = -1f;
     Vector3 location;
     // Update is called once per frame
@@ -33,7 +38,8 @@ public class AdamBayam : Buoy
         transform.localPosition = location * (1-animateTime) + boatPosition * animateTime;
     }
 
-    void OnMouseDown() // starts an animation of pulling it up.
+    public bool adamBayamIsOn = false;
+    public void OnMouseDown() // starts an animation of pulling it up.
     {
         animateTime = 0;
         location = transform.position;

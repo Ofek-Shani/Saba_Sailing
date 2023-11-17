@@ -1,15 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        },
+        {
+            "name": "Unity Debugger",
+            "type": "unity",
+            "request": "attach",
+            "debuggerPort": 56000,
+            "assemblyFile": "${workspaceFolder}/Library/ScriptAssemblies/Assembly-CSharp.dll"
+        },
         {
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "url": "file:///${workspaceFolder}/simulator/sail2.html",
             "webRoot": "${workspaceFolder}/simulator"
+        },
+        {
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
         }
     ]
 }
