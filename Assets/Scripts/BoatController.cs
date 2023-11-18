@@ -41,7 +41,7 @@ public class BoatController : MonoBehaviour
     Rigidbody2D rb;
 
     TMP_Text angDvalueText, linDvalueText, fwdFvalueText, latFvalueText;
-    // Toggle ancor;
+    Toggle ancor;
 
     // CONSTANTS FOR BOAT
     //[Range(0.0f, 10.0f)]
@@ -64,6 +64,10 @@ public class BoatController : MonoBehaviour
         public Transform boat;
     };
     State state;
+
+    public void ToggleAncor() {
+        if (ancor != null) ancor.isOn = !ancor.isOn;
+    }
     public void Reset() {
         sailSlider.value = state.sails;
         steeringSlider.value = state.steering;
@@ -114,7 +118,7 @@ public class BoatController : MonoBehaviour
         linDvalueText = boatTexts[1].GetComponent<TMP_Text>();
         fwdFvalueText = boatTexts[2].GetComponent<TMP_Text>();
         latFvalueText = boatTexts[3].GetComponent<TMP_Text>();
-        // ancor = GameObject.FindGameObjectWithTag("ancor").GetComponent<Toggle>();
+        ancor = GameObject.FindGameObjectWithTag("ancor").GetComponent<Toggle>();
         sailAngle = MainSail.transform.localEulerAngles.z;
         mainSailPanelImage = mainSailPanel.GetComponent<Image>();
         frontSailPanelImage = frontSailPanel.GetComponent<Image>();
@@ -161,18 +165,6 @@ class KeyControl
     KeyControl useMainK = new KeyControl(KeyCode.S), useFrontK = new KeyControl(KeyCode.W);
     void Update()
     {
-        /* bool boatMode = true; // Time.realtimeSinceStartup < 36f * 5f;
-         elapsedTime += Time.deltaTime;
-         if (elapsedTime - lastTime > 3) {
-            if (boatMode) 
-                 transform.localRotation = Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z + 15);
-            else
-            {
-                 FrontSail.transform.localRotation = Quaternion.Euler(0, 0, FrontSail.transform.rotation.eulerAngles.z + 10);
-                 MainSail.transform.localRotation = Quaternion.Euler(0, 0, MainSail.transform.rotation.eulerAngles.z + 10);
-            }
-            lastTime = elapsedTime;
-         }*/
         if (useMainK.clicked()) mainSailFlipped();
         if (useFrontK.clicked()) frontSailFlipped();
         bool setAsMain = useMain, setAsFront = useFront;
@@ -251,6 +243,9 @@ class KeyControl
         get { return windBoatAngleN; }
     }
 
+    public void ZoomControl(float factor) {
+        canvasScaler.scaleFactor = factor;
+    }
     public void ZoomInControls()
     {
         canvasScaler.scaleFactor += 0.1f;
@@ -295,8 +290,8 @@ class KeyControl
         float ldf = GetLateralDragFactor(keelStatus, lateralVelocity);
         // Debug.Log("ldf:" + ldf);
         Vector2 forceVector = (forwardForceVector + lateralForceVector * ldf) * Time.deltaTime * boatForceFactor;
-        // if ((ancor != null && !ancor.isOn) || ancor == null) 
-        rb.AddForce(forceVector);
+        if ((ancor != null && !ancor.isOn) || ancor == null) 
+            rb.AddForce(forceVector);
         float rudderAngleN = rudder.transform.localEulerAngles.z;
         if (rudderAngleN > 180) rudderAngleN -= 360;
         float torque = 0;

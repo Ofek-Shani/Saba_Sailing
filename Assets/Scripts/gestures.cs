@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
+using UnityEngine.U2D.IK;
 using UnityEngine.UI;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
@@ -12,23 +14,31 @@ using UnityEngine.UI;
 public class gestures : MonoBehaviour
 {
     [SerializeField] Slider sails, steering, keel;
+    public GameObject theWater;
     public Button hitLeft, hitRight, adamBayamB, plus, minus;
-    public GameObject adamBayamBuoy, pausePlayB, infoP, helpB, restartB, exitB;
+    public GameObject adamBayamBuoy, pausePlayB, fullScreenB, infoP, helpB, restartB, exitB;
     public GameObject confirmP; 
     // public Camera camera;
     bool pauseIsOn = true;
-    Image pauseImg, playImg;
-    class KeyTracking
+    Image pauseImg, playImg, expandScreenImg, shrinkScreenImg, forbidImg;
+    GameObject canvas;
+    public class KeyTracking
     {
         KeyCode keyCode;
         bool stateUp = true;
-        public KeyTracking(KeyCode keyCode_)
+        bool trace = false;
+        public KeyTracking(KeyCode keyCode_, bool trace_ = false)
         {
             keyCode = keyCode_;
+            trace = trace_;
         }
         public bool clicked()
         {
-            if (Input.GetKeyDown(keyCode))
+            bool keyDown = Input.GetKeyDown(keyCode);
+            if (trace && keyDown) {
+                Debug.Log("Key [" + keyCode + "]: " + Input.GetKeyDown(keyCode) + ". state: " + stateUp);
+            }
+            if (keyDown)
             {
                 if (stateUp)
                 {
@@ -63,11 +73,10 @@ public class gestures : MonoBehaviour
         togglePausePlayK = new KeyTracking(KeyCode.P),
         restartK = new KeyTracking(KeyCode.R),
         showHideHelpK = new KeyTracking(KeyCode.Slash),
-        hK = new KeyTracking(KeyCode.H);
-
-    bool isFullScreen = false;
-    bool isInfoShown = false;
-
+        hK = new KeyTracking(KeyCode.H),
+        escK = new KeyTracking(KeyCode.Escape, false),
+        enterK = new KeyTracking(KeyCode.Return, false),
+        ancorK = new KeyTracking(KeyCode.A);
     Color normalHelpBColor, normalRestartBColor, normalQuitBColor, normalPausePlayBColor;
     // Start is called before the first frame update
 
@@ -77,31 +86,55 @@ public class gestures : MonoBehaviour
     {
         pauseImg = pausePlayB.transform.GetChild(0).GetComponent<Image>();
         playImg = pausePlayB.transform.GetChild(1).GetComponent<Image>();
+        expandScreenImg = fullScreenB.transform.GetChild(0).GetComponent<Image>();
+        shrinkScreenImg = fullScreenB.transform.GetChild(1).GetComponent<Image>();
+        forbidImg = fullScreenB.transform.GetChild(2).GetComponent<Image>();
+#if UNITY_EDITOR
+       // fullScreenB.GetComponent<Button>().interactable = false;
+        forbidImg.gameObject.SetActive(true); // show that it is inactive.
+#endif
+        canvas = infoP.transform.parent.gameObject;
+        SetCanvasScale();
     }
 
+    Vector2 screenSize;
+    void SetCanvasScale() {
+        Vector2 currentScreenSize = new Vector2(Screen.width, Screen.height);
+        if (currentScreenSize == screenSize)  return;
+        screenSize = currentScreenSize;
+        Debug.Log("screen size: " + screenSize);
+        float ss = (Screen.width + Screen.height) /2f;
+        CanvasScaler canvasScaler = canvas.GetComponent<CanvasScaler>();
+        float cs = 1.3f * ss / 3000f;
+        // if (ss > 3000) cs = 1.3f;
+        // else if (ss > 2000) cs = 1f;
+        // else if (ss > 1000) cs = 0.8f;
+        // else cs = 0.5f;
+        Debug.Log("Setting scale to: " + cs);
+        canvasScaler.scaleFactor = cs;
+    }
     void TestExitRequested()
     { // exits the game if CTRL-C is clicked.
         if (exitK.clicked() && (
             Input.GetKey(KeyCode.LeftControl) ||
             Input.GetKey(KeyCode.RightControl)))
         {
-            doExit();
+            doExit();                   
         }
     }
 
-    void TestToggleScreenSizeRequested()
-    {
-        if (f11K.clicked())
-        {
-            isFullScreen = !isFullScreen;
-        }
-        Screen.fullScreen = isFullScreen;
-    }
     // Update is called once per frame
+    GameObject inFocus;
     void Update()
-    {
+    {   GameObject infocusNow = EventSystem.current.currentSelectedGameObject;
+        if (inFocus != infocusNow) {
+            Debug.Log("focus changed: " + inFocus + " -> " + infocusNow);
+            inFocus = infocusNow; 
+        }
+        SetCanvasScale();
+        // EventSystem.current.SetSelectedGameObject(gameObject);
+        // Debug.Log("escape: " + Input.GetKey(KeyCode.Escape) + ", return: " + Input.GetKey(KeyCode.Return));
         if (confirm().active && !confirm().done) return;
-        TestToggleScreenSizeRequested();
         TestExitRequested();
         if (hitLeftK.clicked()) hitLeft.onClick.Invoke();
         if (hitRightK.clicked()) hitRight.onClick.Invoke();
@@ -132,9 +165,11 @@ public class gestures : MonoBehaviour
         if (togglePausePlayK.clicked()) {doPausePlay();}
         if (restartK.clicked()) {doRestart();}
         if (showHideHelpK.clicked()) {doHelp();}
-
+        if (escK.clicked()) {doEscape();}
+        if (enterK.clicked()) {doEnter();}
+        if (f11K.clicked()) { doFullScreen();}
+        if (ancorK.clicked()) {boat().ToggleAncor();}
     }
-
 
     public class Confirm {
         public bool active = false, done = false, confirmed = false;
@@ -163,11 +198,25 @@ public class gestures : MonoBehaviour
         return confirm_;
     }
 
-    bool helpIsOn = false;
+    bool isConfirmOn() {return confirm().active;}
+    bool isHelpOn() { return infoP.gameObject.activeSelf;}
+    bool isFullScreen() {return Screen.fullScreen;}
+
     public void doHelp() {
-        helpIsOn = !helpIsOn;
-        infoP.gameObject.SetActive(helpIsOn);
+        infoP.gameObject.SetActive(!isHelpOn());
     }
+
+    public void doEscape() {
+        Debug.Log("escape");
+        if (isHelpOn()) doCloseHelp();
+        else if (isConfirmOn()) doConfirmCancel();
+    }
+    public void doEnter() {
+        Debug.Log("enter");
+        if (isHelpOn()) doCloseHelp();
+        else if (isConfirmOn()) doConfirmOK();
+    }
+
     public void doRestart() {
         boat().Reset();
         AdamBayam ab = adamBayam();
@@ -192,17 +241,19 @@ public class gestures : MonoBehaviour
         });
     }
     public void doConfirmOK() {
-        confirm().Stop(true);
+        if (confirm().active) confirm().Stop(true);
     }
     public void doConfirmCancel() {
-        confirm().Stop(false);
+        if (confirm().active) confirm().Stop(false);
     }
 
     public void doCloseHelp(){
         infoP.gameObject.SetActive(false);
     }
+
+
     public void doShowHelp(){
-        infoP.gameObject.SetActive(!infoP.gameObject.activeSelf); // toggle its active state.
+        infoP.gameObject.SetActive(!isHelpOn()); // toggle its active state.
     }
     void PauseGame() {
         Time.timeScale = 0;
@@ -219,4 +270,15 @@ public class gestures : MonoBehaviour
         pauseImg.gameObject.SetActive(pauseIsOn);
         playImg.gameObject.SetActive(!pauseIsOn);
     }
+    public void doFullScreen() {
+        Debug.Log("doFullScreen");
+        bool fs = isFullScreen();
+        Screen.fullScreen = !Screen.fullScreen;
+        if (fs == isFullScreen()) {
+            // does not change status, so lit both image on the button
+        };
+        shrinkScreenImg.gameObject.SetActive(fs); //isFullScreen());
+        expandScreenImg.gameObject.SetActive(!fs); //!isFullScreen());
+    }
+
 }
