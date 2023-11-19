@@ -16,12 +16,14 @@ public class gestures : MonoBehaviour
     [SerializeField] Slider sails, steering, keel;
     public GameObject theWater;
     public Button hitLeft, hitRight, adamBayamB, plus, minus;
-    public GameObject adamBayamBuoy, pausePlayB, fullScreenB, infoP, helpB, restartB, exitB;
+    public GameObject adamBayamBuoy, pausePlayB, zoomB, f11B, followB, infoP, helpB, restartB, exitB;
     public GameObject confirmP; 
     // public Camera camera;
     bool pauseIsOn = true;
-    Image pauseImg, playImg, expandScreenImg, shrinkScreenImg, forbidImg;
-    GameObject canvas;
+    Image pauseImg, playImg, zoomOutImg, zoomInImg, followBoatImg, followWorldImg;
+    private Canvas canvas;
+    private CanvasScaler canvasScaler;
+
     public class KeyTracking
     {
         KeyCode keyCode;
@@ -86,30 +88,28 @@ public class gestures : MonoBehaviour
     {
         pauseImg = pausePlayB.transform.GetChild(0).GetComponent<Image>();
         playImg = pausePlayB.transform.GetChild(1).GetComponent<Image>();
-        expandScreenImg = fullScreenB.transform.GetChild(0).GetComponent<Image>();
-        shrinkScreenImg = fullScreenB.transform.GetChild(1).GetComponent<Image>();
-        forbidImg = fullScreenB.transform.GetChild(2).GetComponent<Image>();
+        zoomOutImg = zoomB.transform.GetChild(0).GetComponent<Image>();
+        zoomInImg = zoomB.transform.GetChild(1).GetComponent<Image>();
+        followBoatImg = followB.transform.GetChild(0).GetComponent<Image>();
+        followWorldImg = followB.transform.GetChild(1).GetComponent<Image>();
+        canvas = GameObject.FindGameObjectWithTag("SailingControl").GetComponent<Canvas>();
+        canvasScaler = canvas.GetComponent<CanvasScaler>();
+
 #if UNITY_EDITOR
-       // fullScreenB.GetComponent<Button>().interactable = false;
-        forbidImg.gameObject.SetActive(true); // show that it is inactive.
+       // hide the F11 button
+       f11B.gameObject.SetActive(false);
 #endif
-        canvas = infoP.transform.parent.gameObject;
-        SetCanvasScale();
+        CanvasAutoScale();
     }
 
     Vector2 screenSize;
-    void SetCanvasScale() {
+    void CanvasAutoScale() {
         Vector2 currentScreenSize = new Vector2(Screen.width, Screen.height);
         if (currentScreenSize == screenSize)  return;
         screenSize = currentScreenSize;
         Debug.Log("screen size: " + screenSize);
         float ss = (Screen.width + Screen.height) /2f;
-        CanvasScaler canvasScaler = canvas.GetComponent<CanvasScaler>();
         float cs = 1.3f * ss / 3000f;
-        // if (ss > 3000) cs = 1.3f;
-        // else if (ss > 2000) cs = 1f;
-        // else if (ss > 1000) cs = 0.8f;
-        // else cs = 0.5f;
         Debug.Log("Setting scale to: " + cs);
         canvasScaler.scaleFactor = cs;
     }
@@ -131,8 +131,8 @@ public class gestures : MonoBehaviour
             Debug.Log("focus changed: " + inFocus + " -> " + infocusNow);
             inFocus = infocusNow; 
         }
-        SetCanvasScale();
-        // EventSystem.current.SetSelectedGameObject(gameObject);
+        EventSystem.current.SetSelectedGameObject(null);
+        CanvasAutoScale();
         // Debug.Log("escape: " + Input.GetKey(KeyCode.Escape) + ", return: " + Input.GetKey(KeyCode.Return));
         if (confirm().active && !confirm().done) return;
         TestExitRequested();
@@ -152,23 +152,23 @@ public class gestures : MonoBehaviour
                 ab.adamBayamIsOn = true;
             }
         }
-        if (plusK.clicked()) plus.onClick.Invoke();
-        if (minusK.clicked()) minus.onClick.Invoke();
+        if (plusK.clicked()) CanvasEnlarge();
+        if (minusK.clicked()) CanvasShrink();
         if (sailsUpK.clicked()) sails.value = Mathf.Max(sails.minValue, sails.value - 1);
         if (sailsDownK.clicked()) sails.value = Mathf.Min(sails.maxValue, sails.value + 1);
         if (steeringLeft.clicked()) steering.value = Mathf.Max(steering.minValue, steering.value - 1);
         if (steeringRight.clicked()) steering.value = Mathf.Min(steering.maxValue, steering.value + 1);
         if (keelUpK.clicked()) keel.value = Mathf.Max(keel.minValue, keel.value - 1);
         if (keelDownK.clicked()) keel.value = Mathf.Min(keel.maxValue, keel.value + 1);
-        if (zoomK.clicked()) { Camera.main.orthographicSize = (Camera.main.orthographicSize == 10f) ? 30f : 10f; }
-        if (followK.clicked()) { CameraController.Instance.withOrientation = !CameraController.Instance.withOrientation; }
-        if (togglePausePlayK.clicked()) {doPausePlay();}
-        if (restartK.clicked()) {doRestart();}
-        if (showHideHelpK.clicked()) {doHelp();}
-        if (escK.clicked()) {doEscape();}
-        if (enterK.clicked()) {doEnter();}
-        if (f11K.clicked()) { doFullScreen();}
-        if (ancorK.clicked()) {boat().ToggleAncor();}
+        if (zoomK.clicked()) { doZoom();}
+        if (followK.clicked())  doFollow(); 
+        if (togglePausePlayK.clicked()) doPausePlay();
+        if (restartK.clicked()) doRestart();
+        if (showHideHelpK.clicked()) doHelp();
+        if (escK.clicked()) doEscape();
+        if (enterK.clicked()) doEnter();
+        if (f11K.clicked()) doF11();
+        if (ancorK.clicked()) boat().ToggleAncor();
     }
 
     public class Confirm {
@@ -200,12 +200,31 @@ public class gestures : MonoBehaviour
 
     bool isConfirmOn() {return confirm().active;}
     bool isHelpOn() { return infoP.gameObject.activeSelf;}
-    bool isFullScreen() {return Screen.fullScreen;}
+
+    public void CanvasSizeControl(float factor) {
+        canvasScaler.scaleFactor = factor;
+    }
+    public void CanvasEnlarge()
+    {
+        canvasScaler.scaleFactor += 0.1f;
+    }
+    public void CanvasShrink()
+    {
+        // Debug.Log(canvasTransform.localScale);
+        canvasScaler.scaleFactor -= 0.1f;
+    }
+    float rad(float deg) {return deg * Mathf.Deg2Rad; }
 
     public void doHelp() {
         infoP.gameObject.SetActive(!isHelpOn());
     }
 
+    public void doFollow() {
+        bool followBoat = !CameraController.Instance.withOrientation;
+        CameraController.Instance.withOrientation = followBoat;
+        followBoatImg.gameObject.SetActive(followBoat);
+        followWorldImg.gameObject.SetActive(!followBoat);
+    }
     public void doEscape() {
         Debug.Log("escape");
         if (isHelpOn()) doCloseHelp();
@@ -270,15 +289,14 @@ public class gestures : MonoBehaviour
         pauseImg.gameObject.SetActive(pauseIsOn);
         playImg.gameObject.SetActive(!pauseIsOn);
     }
-    public void doFullScreen() {
-        Debug.Log("doFullScreen");
-        bool fs = isFullScreen();
+    public void doF11() {
         Screen.fullScreen = !Screen.fullScreen;
-        if (fs == isFullScreen()) {
-            // does not change status, so lit both image on the button
-        };
-        shrinkScreenImg.gameObject.SetActive(fs); //isFullScreen());
-        expandScreenImg.gameObject.SetActive(!fs); //!isFullScreen());
     }
-
+    public void doZoom() {
+        bool close = Camera.main.orthographicSize == 10f;
+        Camera.main.orthographicSize = close ? 30f : 10f; 
+        close = !close;
+        zoomOutImg.gameObject.SetActive(close);
+        zoomInImg.gameObject.SetActive(!close);
+    }
 }

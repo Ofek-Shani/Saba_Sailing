@@ -26,7 +26,6 @@ public class BoatController : MonoBehaviour
     public Button mainSailButton;
     public GameObject frontSailPanel;
     public GameObject mainSailPanel;
-    private CanvasScaler canvasScaler;
     private Image mainSailPanelImage, frontSailPanelImage;
     private Color mainSailPanelRestColor, frontSailPanelRestColor;
     private SailController.Animation steeringAnimation = new SailController.Animation(0.1f, 1f);
@@ -103,8 +102,6 @@ public class BoatController : MonoBehaviour
         MainSail = transform.GetChild(0).gameObject.GetComponent<SailController>();
         FrontSail = transform.GetChild(1).gameObject.GetComponent<SailController>(); 
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
-        Canvas canvas = GameObject.FindGameObjectWithTag("SailingControl").GetComponent<Canvas>();
-        canvasScaler = canvas.GetComponent<CanvasScaler>();
         rb = GetComponent<Rigidbody2D>();
         rb.angularDrag = ANGULAR_DRAG;
         rb.drag = DRAG_FACTOR;
@@ -243,19 +240,6 @@ class KeyControl
         get { return windBoatAngleN; }
     }
 
-    public void ZoomControl(float factor) {
-        canvasScaler.scaleFactor = factor;
-    }
-    public void ZoomInControls()
-    {
-        canvasScaler.scaleFactor += 0.1f;
-    }
-    public void ZoomOutControls()
-    {
-        // Debug.Log(canvasTransform.localScale);
-        canvasScaler.scaleFactor -= 0.1f;
-    }
-    float rad(float deg) {return deg * Mathf.Deg2Rad; }
     float normalized(float deg) { return BoatPhysics.normalized360(deg); }
     float bNormalized(float deg) {
         return BoatPhysics.normalized360(deg) - 180; //> 180 ? 180 - deg : deg; 
