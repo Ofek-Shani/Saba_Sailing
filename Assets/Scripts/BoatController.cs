@@ -309,6 +309,8 @@ class KeyControl
 
     }
 
+    float rad(float angle) { return angle * Mathf.Deg2Rad;}
+
     void ApplySteeringForce()
     {
         //Debug.Log((-1 * rudder.transform.up).ToShortString() + " <- forward, right -> " + rudder.transform.right.ToShortString());
