@@ -12,6 +12,9 @@
 venv/
 node_modules/
 package-lock.json
+sailing-PC/
+README.html
+README.pdf
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
