@@ -15,7 +15,7 @@ public class SailController : MonoBehaviour
     BoatController bc;
     SpriteRenderer sr;
 
-    Animation SailShape;
+    Animation sailShape;
 
     void Start()
     {
@@ -25,7 +25,7 @@ public class SailController : MonoBehaviour
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
         bc = GameObject.FindGameObjectWithTag("Boat").GetComponent<BoatController>();
         sr = GetComponent<SpriteRenderer>();
-        SailShape = new Animation(0.05f, 0.5f); // one second period, minimum change = 0.1
+        sailShape = new Animation(0.05f, 0.5f); // one second period, minimum change = 0.1
     //    StartWaivy(); // used to render the sail loose when againes the wind.
     }
 
@@ -200,8 +200,8 @@ public class SailController : MonoBehaviour
         const float minScale = 0.45f;
         float scaleY = sign(sailAngleN) * sign(forceN) * 
             Mathf.Clamp(Mathf.Abs(forceN), minScale, 1f);
-        SailShape.set(scaleY);
-        scaleY = SailShape.Value;
+        sailShape.set(scaleY);
+        scaleY = sailShape.Value;
         transform.localScale = new Vector3(transform.localScale.x, scaleY, 1);
         if (Mathf.Abs(forceN) < 0.25) sailSpr.color = LOW;
         else if (forceN < -0.25 && sailColor == POS) { sailColor = sailSpr.color = NEG; }

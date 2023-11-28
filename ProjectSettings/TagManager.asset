@@ -8,8 +8,9 @@ TagManager:
   - BoatInfo
   - SailingControl
   - Boat
-  - ancor
   - gesture
+  - Undefined
+  - anchor
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Water
   - UI
   - Wind
-  - 
+  - LineRenderer
   - 
   - 
   - 
@@ -55,4 +56,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 3097257363
+    locked: 0
+  - name: LineRenderer
+    uniqueID: 2430466073
     locked: 0

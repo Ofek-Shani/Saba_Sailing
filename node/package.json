@@ -12,6 +12,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "markdown-it": "^13.0.2",
-    "markdown-pdf": "^11.0.0"
+    "markdown-pdf": "^11.0.0",
+    "svg2img": "^1.0.0-beta.2"
   }
 }
