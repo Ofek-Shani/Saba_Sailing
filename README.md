@@ -94,7 +94,7 @@ The current version 1.1 includes some changes in the GUI and keyboard:
 - The GUI size is kept ralative to the resolution of the game screen and cannot be changed manually.
 - The zoom in and out now has many levels that are applied with the keys used previously to change GUI widgets' size: the **+** and **-** keys, and the small buttons in the "Sailiung Control" box.
 - The **Z** button is not interpreted anymore and the respective button on the left side has been removed.
-- It is possible to remove the GUI altogether and use only keyboard with the 
+- It is possible to remove the GUI altogether and use only keyboard shortcuts.
 ## Contributing
 The project is presently private so contributions are limited.
 
