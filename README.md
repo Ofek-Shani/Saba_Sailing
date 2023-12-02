@@ -29,23 +29,24 @@ various types of maneuvers.
 
 ## Features
 1. 2 sails, individually controlled, 
-1. keel with 3 positions, 
-1. rudder with 8 positions each side. 
-1. The boat has a life saver buoy to 
+2. keel with 3 positions, 
+3. rudder with 8 positions each side. 
+4. The boat has a life saver buoy to 
 create "man in water" alerts and maneuvers. 
-1. Wind power on sails computes both blowing wind and air flow affect over the sails as wings at
+5. Wind power on sails computes both blowing wind and air flow affect over the sails as wings at
 tight angles. 
-1. Sails shape reflects the wind blow force applied to them.
-1. When wind blows on loose sails, they flicker from side to side to show that. 
-1. When wind changes sides from the back, sails perform a full side change (revolution) that should be done
+6. Sails shape reflects the wind blow force applied to them.
+7. When wind blows on loose sails, they flicker from side to side to show that. 
+8. When wind changes sides from the back, sails perform a full side change (revolution) that should be done
 with care. 
-1. Rudder is also affecting the boat drag according to its position, so if set to 90 degrees, it will not cause turn, but slow the boat.
-1. Colors of sails reflects direction of wind blow side (green when positive, red when negative). 
-1. Rudder color reflects boat speed forward or backward. When boat velocity is negative, the rudder affects the boat turning in a reverse manner.
+9. Rudder is also affecting the boat drag according to its position, so if set to 90 degrees, it will not cause turn, but slow the boat.
+10. Colors of sails reflects direction of wind blow side (green when positive, red when negative). 
+11. Rudder color reflects boat speed forward or backward. When boat velocity is negative, the rudder affects the boat turning in a reverse manner.
+12. Extensive help info including an animated tutorial.
 
 ## Installation
-1. Get the project from GIT and use the Unity Editor to run the game.
-2. Windows 64-bits: Unzip the installaiton file and run the **Sailing.exe** executable for a full screen experience.
+1. Developer: Get the project from GIT and use the Unity Editor to run the game.
+2. User on Windows 64-bits: Unzip the installaiton file and run the **Sailing.exe** executable for a full screen experience.
 3. Future: APK file for the Android devices.
 
 ## Usage
@@ -56,9 +57,9 @@ The game has GUI controls as well as short-hand keyboard keys to manage the diff
 |Rudder | Move horizontal slider left and right | Use **left arrow** and **right arrow** keys.|
 |Sail Tension| Move left slider up or down| Use **up arrow** and **down arrow** keys.|
 |Keel position: up, middle or full| Move the 3 position vertical slider on right| Use the **PgUp** and **PgDown** keys.|
-|Sail selection| Two buttons <img src="./sails selection icons.JPG"  style="width:45px;height:20px"> on bottom left screen allow to select front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. If both are **not** selected, slider and keys control both sails together. | Use the **W** key to select the front sail, and **S** key for the main sail.|
+|Sail selection| Two buttons <img src="./temp icons/sails selection icons.JPG"  style="width:45px;height:20px"> on bottom left screen allow to select front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. If both are **not** selected, slider and keys control both sails together. | Use the **W** key to select the front sail, and **S** key for the main sail.|
 |Kick rudder| A blue left <img src="./Assets/Textures/leftArrow.png"  style="width:20px;height:20px"> and right <img src="./Assets/Textures/leftArrow.png"  style="width:20px;height:20px;transform:scaleX(-1)"> arrows, perform a sudden **"kick"** of the rudder to the left or the right respectfully, when clicked. This can help getting the boat out of stalling when facing wind for instance.| Use the **Left shift** and **Right Shift** keys respectfully.|
-| Anchor | clicking the toggle button <img src="./anchor icon.JPG" style="width:100px;height:25px"> will stop applying sail power on the boat so it stops | Click the **A** on the keyboard to toggle this button's effect.|
+| Anchor | clicking the toggle button <img src="./temp icons/anchor icon.JPG" style="width:100px;height:25px"> will stop applying sail power on the boat so it stops | Click the **A** on the keyboard to toggle this button's effect.|
 |Man in the water drill|Click the little buoy <img src="./Assets/Textures/buoy.png"  style="width:20px;height:20px"> icon to "throw" a small life saver to mark a man in the water situation. Click on the thrown buoy to grab it back to the boat.|Click the **space** bar to toggle man in the water throw/grab action.|
 |Pause/Play the game| Click the <img src="./Assets/Textures/GameIcons/pause.jpg"  style="width:20px;height:20px"> icon to **pause** the game, and then the <img src="./Assets/Textures/GameIcons/play.jpg" style="width:20px;height:20px"> icon to **resume** it.| Click the **P** key to toggle pause/play modes.|
 |Reset, restart the game|Click the <img src="./Assets/Textures/GameIcons/restart.jpg"  style="width:20px;height:20px"> icon to move the boat and screen back to initial state.| Click the **R** key to reset the game.|
@@ -76,7 +77,7 @@ Display on top left showing the vlaues of four parameters dnamically:
 3. FWD F. is the wind force that is applied on the boat forward direction.
 4. LAT F. is the wind force that is applied on the lateral direction.
 
-Like this on top left: <img src="./data display panel.JPG" style="width:200px;height:40px">
+Like this on top left: <img src="./temp icons/data display panel.JPG" style="width:200px;height:40px">
 
 ## Keyboard Shortcuts
 As part of the game help informtion is the keyboard layout: <img src="./Assets/Textures/GameIcons/keyboard guide for sailing 1.png" style="width:1000px;haight:500px">
@@ -85,7 +86,8 @@ As part of the game help informtion is the keyboard layout: <img src="./Assets/T
 A second part of the game help information - a summary of all the GUI controls on the screen: <img src="./Assets/Textures/GameIcons/scene.png" style="width:1000px;haight:500px">
 
 ## Tutorial
-The third part of the game help information is a series of lessons with animated demonstrations and hands on steps.
+The third part of the game help information is a series of lessons with animated demonstrations and hands on steps. For instance this is the lesson explaining how to work with the sails, the opening explanation and pointers to the relevant graphics on the screen:
+<img src="./temp icons/tutorial-sails.JPG" style="width:1000px;height:500px">
 
 ## Versions and changes
 The current version 1.1 includes some changes in the GUI and keyboard:
