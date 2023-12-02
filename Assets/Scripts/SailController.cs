@@ -158,6 +158,9 @@ public class SailController : MonoBehaviour
         float period = 0.5f;
         public Animation(float threshold_, float period_) { threshold = threshold_; period = period_; }
         public void setBoth(float from_, float to_) { from = from_; to = to_;  done = false; totalTime = 0; current = from; }
+        public void stop() {
+            done = true;
+        }
         public void set(float to_)
         {
             if (!done) return;

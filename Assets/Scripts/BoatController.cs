@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using System;
 using System.Data;
+using UnityEditor.PackageManager.Requests;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
 
@@ -28,11 +29,14 @@ public class BoatController : MonoBehaviour
     public Button mainSailButton;
     public GameObject frontSailPanel;
     public GameObject mainSailPanel;
+    public float demoVelocityMagnitude = 3f;
     private Image mainSailPanelImage, frontSailPanelImage;
     private Color mainSailPanelRestColor, frontSailPanelRestColor;
     private SailController.Animation hitSteeringAnimation = new SailController.Animation(0.1f, 1f);
 
+
     private bool demoMode = false;
+    private float demoVelocity = 0;
 
     [SerializeField] GameObject rudder, keel;
     SpriteRenderer rudderSpr, keelSpr;
@@ -68,16 +72,24 @@ public class BoatController : MonoBehaviour
     };
     State state;
 
-    public void setDemoMode(bool demo = false) { 
-        Renderer renderer = GetComponent<Renderer>();
-        Color objectColor = renderer.material.color;
-        objectColor.a = demo ? 0.5f : 1f; // Set the alpha value to 0.5 (50% transparency)
+    public void setDemoMode(bool demo = false, bool forward = true) { 
+        Renderer renderer = GetComponent<Renderer>(), 
+            mainSailRenderer = MainSail.gameObject.GetComponent<Renderer>(),
+            frontSailRenderer = FrontSail.gameObject.GetComponent<Renderer>();
+        Color objectColor = renderer.material.color,
+            mainSailColor = mainSailRenderer.material.color,
+            frontSailColor = frontSailRenderer.material.color;
+        float a = demo ? 0.5f : 1f; // Set the alpha value to 0.5 (50% transparency)
+        objectColor.a = mainSailColor.a = frontSailColor.a = a;
         renderer.material.color = objectColor;
+        mainSailRenderer.material.color = mainSailColor;
+        frontSailRenderer.material.color = frontSailColor;
         demoMode = demo;
+        demoVelocity = (forward ? 1 : -1) * demoVelocityMagnitude;
         if (demo) Reset();
-        ToggleAncor(demo ? 1 : -1);
+        ToggleAnchor(demo ? 1 : -1);
     }
-    public void ToggleAncor(int force = 0) { // force can be -1 (for off), 0 (for toggle) or 1 (for on).
+    public void ToggleAnchor(int force = 0) { // force can be -1 (for off), 0 (for toggle) or 1 (for on).
         if (anchor == null) return;
         if (force == 0) {
              anchor.isOn = !anchor.isOn;
@@ -196,7 +208,7 @@ class KeyControl
         if (sliderDemo == null || !sliderDemo.Update()) {
             if (!hitSteeringAnimation.done)
                 SetSteering(hitSteeringAnimation.Value);
-        }
+        } 
         DoPhysics();
     }
 
@@ -214,46 +226,81 @@ class KeyControl
     private Slider sliderMap(DemoKind kind) 
     {
         switch(kind) { 
-            case DemoKind.STEERING: return steeringSlider; break;
-            case DemoKind.SAILS: return sailSlider; break;
-            case DemoKind.KEEL: return keelSlider; break;
+            case DemoKind.STEERING: return steeringSlider;
+            case DemoKind.SAILS: return sailSlider;
+            case DemoKind.KEEL: return keelSlider;
         }
         return null;    
     }
-    public void startSliderDemo(DemoKind kind, int cycles = 3) {
+    public void startSliderDemo(DemoKind kind, int cycles = 3, 
+        float _factor = 1f, float _velocity = 3f) {
         Slider slider = sliderMap(kind);
-        sliderDemo = new SliderDemo(this, slider, cycles);
+        float startPos = 0, endPos= 0, factor= _factor;
+        demoVelocity = _velocity;
+        switch (kind) { 
+            case DemoKind.SAILS: endPos=10f; break; 
+            case DemoKind.KEEL: endPos=2f; break; }
+//            case DemoKind.STEERING: factor= 0.5f; break;}
+        sliderDemo = new SliderDemo(this, slider, startPos, endPos, cycles, factor);
     }
     public void stopSliderDemo() {
         sliderDemo = null;
+        Reset();
     }
     class SliderDemo 
     {    
         SailController.Animation animator;
         Slider slider;
         int cycles = 0, cycle = 0;
+        float startPos, endPos, factor;
         BoatController boat;
-        public SliderDemo(BoatController _boat, Slider _slider, int _cycles=3) {
-            animator = new SailController.Animation(0.1f, 1f);
+        public SliderDemo(BoatController _boat, Slider _slider, float _startPos=0, float _endPos=0, int _cycles=3, float _factor=1f) {
+            animator = new SailController.Animation(0.05f, 1.5f);
             cycles = _cycles;
             cycle = 0;
             boat = _boat;
             slider = _slider;
-        }  
-
+            startPos = _startPos;
+            endPos = _endPos;
+            factor = _factor;
+        } 
+        float rest = 1f;
+        bool resting = false;
+        float restTime = 0; 
+        public void Reset() {
+            slider.value = startPos;
+            animator.stop();
+        }
+        bool starting = true, finish = true;
         public bool Update() {
             if (animator == null) return false;
+            if (resting) {
+                restTime += Time.deltaTime;
+                if (restTime > rest) resting = false;
+                return true;
+            }
             if (animator.done) {
                 cycle++;
-                if (cycle > cycles) {
+                if (cycle > 1 && cycle <= cycles) {
+                    resting = true;
+                    restTime = 0;
+                }
+                if (cycle > cycles && !finish) {
                     animator = null;
                     return false;
                 } else {
-                float from = slider.minValue, to = slider.maxValue;
-                if (cycle % 2 == 0) {
-                        float x = from; from = to; to = x;
-                } 
-                animator.setBoth(from, to);
+                    float from = factor * slider.minValue, to = factor * slider.maxValue;
+                    if (cycle > cycles && finish) {
+                        finish = false;
+                        from = endPos * factor;
+                    } else if(starting) {
+                        starting = false;
+                        from = startPos * factor;
+                    } 
+                    if (cycle % 2 == 0) {
+                        (to, from) = (from, to);
+                    }
+                    animator.setBoth(from, to);
                 }
             }
             slider.value = animator.Value;
@@ -351,6 +398,10 @@ class KeyControl
         Vector2 lateralForceVector = boatLateralDirection * (mainForces[1] + frontForces[1]);
         float forwardVelocity = Vector2.Dot(rb.velocity, boatForwardDirection);
         float lateralVelocity = Vector2.Dot(rb.velocity, boatLateralDirection);
+        if (demoMode) {
+            forwardVelocity = demoVelocity;
+            lateralVelocity = 0f;
+        }
         rudderSpr.color = forwardVelocity > 0 ? Color.green : Color.red;
         // apply force and torque:
         //Vector2 forceVector = (forwardForceVector * GetForwardDragFactor(boatForwardDirection) + lateralForceVector * GetLateralDragFactor(keelStatus, lateralVelocity)) * Time.deltaTime * boatForceFactor;

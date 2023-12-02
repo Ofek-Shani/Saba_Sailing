@@ -10,6 +10,8 @@ public class TutorialManager : MonoBehaviour
     public GameObject lessonTemplate, listContainer;
     public Button nextButton, prevButton, firstButton, listButton;
     public Text explanationT, chapterNameT;
+    public GameObject explanationP;
+
     public LineRenderer arrowLR;
     public BoatController boat;
 

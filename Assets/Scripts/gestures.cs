@@ -172,7 +172,7 @@ public class gestures : MonoBehaviour
         if (escK.clicked()) doEscape();
         if (enterK.clicked()) doEnter();
         if (f11K.clicked()) doF11();
-        if (ancorK.clicked()) boat().ToggleAncor();
+        if (ancorK.clicked()) boat().ToggleAnchor();
         if (toggleCanvasK.clicked()) toggleCanvas();
     }
 

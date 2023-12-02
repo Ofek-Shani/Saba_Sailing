@@ -50,9 +50,9 @@ public class HelpManager : MonoBehaviour
         return ra;
     }
     Color infoPColor;
-    private void ShowItem(GameObject item, Button button) {
+    private void ShowItem(GameObject item, Button button, bool force = false) {
         Debug.Log("Change help: " + onDisplay + " --> " + item + " Tutorial? " + (item == tutorial));
-        if (item == onDisplay) return;
+        if (!force && item == onDisplay) return;
 
         if (onDisplay != null) {
             onDisplay.SetActive(false);
@@ -79,12 +79,13 @@ public class HelpManager : MonoBehaviour
     public void activate(bool active) {
         if (!active && onDisplay == tutorial) {
             tutorial.GetComponent<TutorialManager>().activate(false);
-            ShowItem(null, null);
+            // ShowItem(null, null);
         }
-        gameObject.SetActive(active);        
+        gameObject.SetActive(active); 
+        if (active && onDisplay == tutorial) ShowTutorial();      
     }
     private void ShowKeyboard() { ShowItem(keyboard, showKeyboardB); }
     private void ShowLayout() { ShowItem(layout, showLayoutB); }
-    private void ShowTutorial() { ShowItem(tutorial, tutorialB); }
+    private void ShowTutorial() { ShowItem(tutorial, tutorialB, true); }
     private void Stop() { gameObject.SetActive(false);}
 }

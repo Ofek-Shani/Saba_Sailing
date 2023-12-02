@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TreeEditor;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
     public TutorialStep[] steps;
     private LineRenderer arrowLR;
     private Text explanationT;
+    private GameObject explanationP;
+    private Image explanationI;
 
     private int stepIndex = -1;
     TutorialStep currentStep;
@@ -20,13 +23,17 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
     internal void clear(TutorialManager mgr)
     {
         Debug.Log("Clearing " + chapterName);
-        CancelInvoke("ExecuteStep");
+        CancelInvoke("switchStep");
         mgr.chapterNameT.text = "Select a lesson to view";
         mgr.explanationT.gameObject.SetActive(false);
         usedTargetObjects = null;
         mgr.arrowLR.positionCount = 0;
         _points = new Vector3[0];
         mgr.arrowLR.SetPositions(_points);
+        if (currentStep != null) currentStep.clear();
+        currentStep = null;
+        stepIndex = -1;
+
     }
 
     internal void load(TutorialManager mgr)
@@ -37,21 +44,42 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
         mgr.explanationT.gameObject.SetActive(true);
         arrowLR = mgr.arrowLR;
         explanationT = mgr.explanationT;
+        explanationP = mgr.explanationP;
+        explanationI = explanationP.GetComponent<Image>();
         usedTargetObjects = targetObjects;
 
         drawArrows();
 
-        switchStep();
+        Invoke("switchStep", 5f);
     }
 
     void switchStep() {
         if (steps.Length == 0) return;
         stepIndex = (stepIndex++)%steps.Length;
         if (currentStep != null) currentStep.clear();
+        stepIndex = (++stepIndex)%steps.Length;
         TutorialStep step = steps[stepIndex];
         usedTargetObjects = step.targetObjects;
+        _points = null;
+        explanationT.text = "";
+        StartCoroutine(AnimateStepSwitch(step.explanationText));
+        step.doAction();
         float duration = step.duration;
         Invoke("switchStep", duration);
+        currentStep = step;
+    }
+
+    private IEnumerator AnimateStepSwitch(string explanationText, float duration = 0.5f)
+    {
+        float pos = 0;
+        float elapsedTime = 0;
+        while (elapsedTime < duration) {
+            elapsedTime += Time.deltaTime;
+            pos = Mathf.Clamp01(elapsedTime / duration);
+            explanationI.fillAmount = pos;
+            if (pos < 1f) yield return null;
+        }
+        explanationT.text = explanationText;
     }
 
     /*
@@ -78,18 +106,26 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
         bool usePivot = false;
         Vector3 lastP = Vector3.zero;
         bool starting = true;
-        while (i < usedTargetObjects.Length) {
-            Vector3 newP = usePivot ? pivot : lociFromTargetObject(usedTargetObjects[i]);
-            if (!usePivot) {i++;}
-            usePivot = !usePivot;
-            pointsL.Add(newP);
-            if (!starting) {
-                float l = Vector3.Distance(newP, lastP);
-                lengthsL.Add(l);
-                length += l;
-                lastP = newP;
+        if (usedTargetObjects.Length == 1) {
+            Vector3 point = lociFromTargetObject(usedTargetObjects[0]);
+            pointsL.Add(point);
+            pointsL.Add(pivot);
+            length = Vector3.Distance(pivot, point);
+            lengthsL.Add(length);
+        } else {
+            while (i < usedTargetObjects.Length) {
+                Vector3 newP = usePivot ? pivot : lociFromTargetObject(usedTargetObjects[i]);
+                if (!usePivot) {i++;}
+                usePivot = !usePivot;
+                pointsL.Add(newP);
+                if (!starting) {
+                    float l = Vector3.Distance(newP, lastP);
+                    lengthsL.Add(l);
+                    length += l;
+                    lastP = newP;
+                }
+                starting = false;
             }
-            starting = false;
         }
         Vector3[] points = pointsL.ToArray();
         if (samePoints(points)) return;
@@ -158,7 +194,7 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
     }
 
     void Update() {
-        // drawArrows();
+        drawArrows();
     }
 
 }
