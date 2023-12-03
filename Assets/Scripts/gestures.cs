@@ -198,7 +198,9 @@ public class gestures : MonoBehaviour
     }
 
     void toggleCanvas(bool forceOn = false) {
-        canvas.gameObject.SetActive(forceOn ? true : !isCanvasOn());
+        bool on = forceOn ? true : !isCanvasOn();
+        canvas.gameObject.SetActive(on);
+        if (!on && isHelpOn()) doHelp(); // will not happen if invoked from doHelp().
     }
     private static Confirm confirm_;
     public Confirm confirm() {

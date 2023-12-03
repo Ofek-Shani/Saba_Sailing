@@ -1,11 +1,12 @@
 using UnityEngine;
 using Unity.VisualScripting;
 using System.Collections;
+using System;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
 public class SailController : MonoBehaviour
 {
-    [SerializeField] float area;
+    [SerializeField] float area, distance, width;
     public Sprite waivy, sail;
 
     public float sailAngle, sailAngleN, force;
@@ -26,6 +27,7 @@ public class SailController : MonoBehaviour
         bc = GameObject.FindGameObjectWithTag("Boat").GetComponent<BoatController>();
         sr = GetComponent<SpriteRenderer>();
         sailShape = new Animation(0.05f, 0.5f); // one second period, minimum change = 0.1
+        float x = distance;
     //    StartWaivy(); // used to render the sail loose when againes the wind.
     }
 
@@ -231,6 +233,22 @@ public class SailController : MonoBehaviour
         float angle = (90 - Mathf.Abs(sailAngleN)) * Mathf.Deg2Rad;
         Vector2 temp = new Vector2(force * Mathf.Cos(angle), sign(sailAngleN) * force * Mathf.Sin(angle));
         return temp;
+    }
+    public struct sailPhysics {
+        public float sailAngle; 
+        public float sailPos; 
+        public float sailWidth; 
+        public float sailForce;
+    }
+
+    sailPhysics sph = new sailPhysics();
+    public sailPhysics GetPhysics() 
+    {
+        sph.sailAngle =sailAngleN;
+        sph.sailPos = distance;
+        sph.sailWidth = width;
+        sph.sailForce = forceN;
+        return sph;
     }
 
 }

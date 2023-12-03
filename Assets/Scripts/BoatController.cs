@@ -6,13 +6,14 @@ using UnityEngine;
 using System;
 using System.Data;
 using UnityEditor.PackageManager.Requests;
+using UnityEngine.Rendering;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
 
 public class BoatController : MonoBehaviour
 {
 
-    public float rudderAngle = 0, sailAngle;
+    public float rudderAngle = 0, sailAngle, frontSailTorque = 0, mainSailTorque= 0;
 
     // enum BoatPart { KEEL, RUDDER, FRONTSAIL, MAINSAIL };
     // BoatPart boatPart = BoatPart.KEEL;
@@ -50,6 +51,11 @@ public class BoatController : MonoBehaviour
     TMP_Text angDvalueText, linDvalueText, fwdFvalueText, latFvalueText;
     Toggle anchor;
 
+    public enum DemoKind {STEERING=0, SAILS=1, KEEL=2}; 
+    Slider[] sliderMap;
+    public BoatController() {
+        sliderMap  = new Slider[] {steeringSlider, sailSlider, keelSlider};
+    }
     // CONSTANTS FOR BOAT
     //[Range(0.0f, 10.0f)]
     //float WATER_DENSITY = 50, BOAT_MASS = 1;
@@ -130,8 +136,8 @@ public class BoatController : MonoBehaviour
     void Start()
     {
         SaveStatus();
-        MainSail = transform.GetChild(0).gameObject.GetComponent<SailController>();
-        FrontSail = transform.GetChild(1).gameObject.GetComponent<SailController>(); 
+        MainSail = transform.GetChild(1).gameObject.GetComponent<SailController>();
+        FrontSail = transform.GetChild(0).gameObject.GetComponent<SailController>(); 
         wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
         rb = GetComponent<Rigidbody2D>();
         rb.angularDrag = ANGULAR_DRAG;
@@ -212,6 +218,13 @@ class KeyControl
         DoPhysics();
     }
 
+    float sailTorque(SailController.sailPhysics sailPhysics) {
+        float torqueSize = sign(sailPhysics.sailAngle) *
+            (Mathf.Abs(sailPhysics.sailPos * 
+                Mathf.Sin((270 + sailPhysics.sailAngle) * Mathf.Deg2Rad)) - sailPhysics.sailWidth / 2f); 
+            //abs(f + r * Math.sin(theta)) / Math.sqrt(cotTheta ** 2 + 1);
+        return -sailPhysics.sailForce * torqueSize * BoatPhysics.ST;        
+    }
     public void SetFrontSail() {
         if (!useFront) frontSailButtonToggle();
     }
@@ -222,19 +235,18 @@ class KeyControl
         if (useFront) frontSailButtonToggle();
         if (useMain) mainSailButtonToggle();
    }
-    public enum DemoKind {STEERING, SAILS, KEEL}; 
-    private Slider sliderMap(DemoKind kind) 
-    {
-        switch(kind) { 
-            case DemoKind.STEERING: return steeringSlider;
-            case DemoKind.SAILS: return sailSlider;
-            case DemoKind.KEEL: return keelSlider;
-        }
-        return null;    
-    }
+    // private Slider sliderMap(DemoKind kind) 
+    // {
+    //     switch(kind) { 
+    //         case DemoKind.STEERING: return steeringSlider;
+    //         case DemoKind.SAILS: return sailSlider;
+    //         case DemoKind.KEEL: return keelSlider;
+    //     }
+    //     return null;    
+    // }
     public void startSliderDemo(DemoKind kind, int cycles = 3, 
         float _factor = 1f, float _velocity = 3f) {
-        Slider slider = sliderMap(kind);
+        Slider slider = sliderMap[(int)kind];
         float startPos = 0, endPos= 0, factor= _factor;
         demoVelocity = _velocity;
         switch (kind) { 
@@ -414,8 +426,10 @@ class KeyControl
         if (rudderAngleN > 180) rudderAngleN -= 360;
         float torque = 0;
         if (Mathf.Abs(rudderAngleN) > 5f) 
-            torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * 10f;
-        rb.AddTorque(torque);
+            torque = - sign(rudderAngleN) * Mathf.Sqrt(Mathf.Abs(Mathf.Sin(rad(rudderAngleN)))) * forwardVelocity * Mathf.Cos(rad(rudderAngleN)) * Time.deltaTime * BoatPhysics.RT;
+        frontSailTorque = sailTorque(FrontSail.GetPhysics()) * Time.deltaTime * BoatPhysics.ST;
+        mainSailTorque = sailTorque(MainSail.GetPhysics()) * Time.deltaTime * BoatPhysics.ST;
+        rb.AddTorque(torque + frontSailTorque + mainSailTorque);
         float angularDrag = (Mathf.Clamp(Mathf.Cos(rad(rudderAngleN)*2),0,1f)*3f + LATERAL_DRAG_FACTOR[keelStatus]/3f) * 0.15f;
         rb.angularDrag = angularDrag;
         float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.15f ;
@@ -482,7 +496,9 @@ public class BoatPhysics
     public const float KW = 1; // Constant for angular change rate calculation
     public const float M = 10; // Boat mass in kg
     public const float L = 5; // Boat length in meters
-    public const float KB = 0.5f; // factorfor wind effect on the boat body
+    public const float KB = 0.5f; // factor for wind effect on the boat body
+    public const float ST = 1.0f; // factor for sail torque effect on the boat.
+    public const float RT = 7.5f; // factor for rudder torque effect on the boat.
     public readonly float[] R = { -1.0f, 0, 0.5f }; // Water resistance constant [backward, still, forward]
     public const float AD = 0.5f; // Angular drag to slow rotational torque.
 

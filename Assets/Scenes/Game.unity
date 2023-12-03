@@ -1330,7 +1330,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &178143675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1419,7 +1419,7 @@ GameObject:
   - component: {fileID: 213008911}
   - component: {fileID: 213008913}
   - component: {fileID: 213008912}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: stepDescirptionT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2735,7 +2735,7 @@ GameObject:
   - component: {fileID: 428069089}
   - component: {fileID: 428069088}
   - component: {fileID: 428069087}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: stepDescriptionP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2801,9 +2801,9 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1197709933
+  m_SortingLayer: 3
+  m_SortingOrder: 5
   m_Positions: []
   m_Parameters:
     serializedVersion: 3
@@ -12461,6 +12461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rudderAngle: 33.14
   sailAngle: 17.2
+  frontSailTorque: 0
   keelStatus: 0
   sailSliderValue: {fileID: 1075459401}
   sailSliderTitle: {fileID: 236120635}
@@ -19061,7 +19062,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67c6550ed7f1e2d49a50cde2d7f90653, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  area: 0
+  area: 5
+  distance: 4
+  width: 3
   waivy: {fileID: 21300000, guid: aac3879461de6e742b06bd4ca42236d1, type: 3}
   sail: {fileID: 21300000, guid: 06889b2e1ae35bc418c997d5811447e5, type: 3}
   sailAngle: 0
@@ -19164,7 +19167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67c6550ed7f1e2d49a50cde2d7f90653, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  area: 0
+  area: 10
+  distance: 1
+  width: 5
   waivy: {fileID: 21300000, guid: aac3879461de6e742b06bd4ca42236d1, type: 3}
   sail: {fileID: 21300000, guid: 06889b2e1ae35bc418c997d5811447e5, type: 3}
   sailAngle: 0
