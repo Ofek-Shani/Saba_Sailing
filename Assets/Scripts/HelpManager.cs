@@ -5,8 +5,8 @@ using UnityEditor.Build.Content;
 
 public class HelpManager : MonoBehaviour
 {
-        Button showKeyboardB, showLayoutB, tutorialB, stopB;
-        GameObject keyboard, layout, tutorial;
+        Button showKeyboardB, showLayoutB, tutorialB, stopB, aboutB;
+        GameObject keyboard, layout, tutorial, about;
         // [SerializeField] TutorialManager tutorialManager;
 
     // Start is called before the first frame update
@@ -18,14 +18,17 @@ public class HelpManager : MonoBehaviour
         showLayoutB = buttonsP.transform.GetChild(1).GetComponent<Button>();
         tutorialB = buttonsP.transform.GetChild(2).GetComponent<Button>();
         stopB = buttonsP.transform.GetChild(3).GetComponent<Button>();
+        aboutB = buttonsP.transform.GetChild(4).GetComponent<Button>();
         showKeyboardB.onClick.AddListener(ShowKeyboard);
         showLayoutB.onClick.AddListener(ShowLayout);
         tutorialB.onClick.AddListener(ShowTutorial);
         stopB.onClick.AddListener(Stop);
+        aboutB.onClick.AddListener(ShowAbout);
         keyboard = transform.GetChild(1).gameObject;
         // Debug.Log("keyboard : " + keyboard);
         layout = transform.GetChild(2).gameObject;
         tutorial = transform.GetChild(3).gameObject;
+        about = transform.GetChild(4).gameObject;
         infoPColor = GetComponent<Image>().color;
         showKeyboardB.onClick.Invoke();
    }
@@ -87,5 +90,6 @@ public class HelpManager : MonoBehaviour
     private void ShowKeyboard() { ShowItem(keyboard, showKeyboardB); }
     private void ShowLayout() { ShowItem(layout, showLayoutB); }
     private void ShowTutorial() { ShowItem(tutorial, tutorialB, true); }
+    private void ShowAbout() { ShowItem(about, aboutB, true); }
     private void Stop() { gameObject.SetActive(false);}
 }
