@@ -11,6 +11,7 @@ TagManager:
   - gesture
   - Undefined
   - anchor
+  - flag
   layers:
   - Default
   - TransparentFX
