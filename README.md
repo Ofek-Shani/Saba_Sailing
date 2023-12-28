@@ -2,7 +2,7 @@
 Simulate a basic sailboat with 2 sails floating on water around various obstacles, with a view from above on a 2D scene.
 
 **Use it**:
-The executable for Windows is available as a zip file from Google Drive here: [Sailing-PC.zip] (https://drive.google.com/file/d/1CGKh-De8uR1dFWWqPoK8aFnefDiPmVYi/view?usp=sharing). Download and open. Then run the sailing.exe file. See this [U-tube Overview](https://youtu.be/oTmf4qWnLm4)
+The executable for Windows is available as a zip file from Google Drive here: [Sailing-PC.zip] (https://drive.google.com/file/d/1CGKh-De8uR1dFWWqPoK8aFnefDiPmVYi/view?usp=sharing). Download and open. Then run the sailing.exe file. See this [U-tube Overview](https://youtu.be/oTmf4qWnLm4) (in Hebrew).
 
 ## Table of Contents
 - [Description](#description)
