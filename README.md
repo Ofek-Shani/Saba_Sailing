@@ -49,7 +49,7 @@ with care.
 2. User on Windows 64-bits: Unzip the installation file 
 from Google Drive here: [Sailing-PC.zip](https://drive.google.com/file/d/1CGKh-De8uR1dFWWqPoK8aFnefDiPmVYi/view?usp=sharing). Then run the **Sailing.exe** executable for a full-screen experience.
   * See this [U-tube Overview](https://youtu.be/oTmf4qWnLm4) (in Hebrew).
-5. Future: APK file for the Android devices.
+3. Future: APK file for the Android devices.
 
 ## Usage
 The game has GUI controls as well as short-hand keyboard keys to manage the different boat parts when sailing as in the following table:
@@ -74,7 +74,7 @@ The game has GUI controls as well as short-hand keyboard keys to manage the diff
 
 
 ## Tracking info
-Display on top left showing the values of four parameters dynamically:
+Display on the top left showing the values of four parameters dynamically:
 1. ANG D. is the Angular Drag that slows boat turning.
 2. LIN D. is the linear Drag that slows the boat's velocity in all directions.
 3. FWD F. is the wind force that is applied in the boat's forward direction.
