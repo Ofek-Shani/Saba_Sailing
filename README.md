@@ -32,7 +32,7 @@ various types of maneuvers.
 2. keel with 3 positions, 
 3. rudder with 8 positions on each side. 
 4. The boat has a lifesaver buoy to 
-create "man in water" alerts and maneuvers. 
+create "man in the water" alerts and maneuvers. 
 5. Wind power on sails computes both blowing wind and airflow effect over the sails as wings at
 tight angles. 
 6. Sails' shape reflects the wind blow force applied to them.
@@ -48,7 +48,7 @@ with care.
 1. Developer: Get the project from GIT and use the Unity Editor to run the game.
 2. User on Windows 64-bits: Unzip the installation file 
 from Google Drive here: [Sailing-PC.zip](https://drive.google.com/file/d/1CGKh-De8uR1dFWWqPoK8aFnefDiPmVYi/view?usp=sharing). Then run the **Sailing.exe** executable for a full-screen experience.
-  * See this [U-tube Overview](https://youtu.be/oTmf4qWnLm4) (in Hebrew).
+   - See this [U-tube Overview](https://youtu.be/oTmf4qWnLm4) (in Hebrew).
 3. Future: APK file for the Android devices.
 
 ## Usage
@@ -60,7 +60,7 @@ The game has GUI controls as well as short-hand keyboard keys to manage the diff
 |Sail Tension| Move left slider up or down| Use **up arrow** and **down arrow** keys.|
 |Keel position: up, middle or full| Move the 3 position vertical slider on right| Use the **PgUp** and **PgDown** keys.|
 |Sail selection| Two buttons <img src="./temp icons/sails selection icons.JPG"  style="width:45px;height:20px"> on the bottom left screen allows to select the front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. If both are **not** selected, the slider and keys control both sails together. | Use the **W** key to select the front sail, and **S** key for the main sail.|
-|Kick rudder| A blue left <img src="./Assets/Textures/leftArrow.png"  style="width:20px;height:20px"> and right <img src="./Assets/Textures/rightArrow.png"  style="width:20px;height:20px;transform:scaleX(-1)"> arrows, perform a sudden **"kick"** of the rudder to the left or the right respectfully, when clicked. This can help get the boat out of stalling when facing wind for instance.| Use the **Left shift** and **Right Shift** keys respectfully.|
+|Kick rudder| A blue left <img src="./Assets/Textures/leftArrow.png"  style="width:20px;height:20px"> and right <img src="./Assets/Textures/rightArrow.png"  style="width:20px;height:20px"> arrows, perform a sudden **"kick"** of the rudder to the left or the right respectfully, when clicked. This can help get the boat out of stalling when facing wind for instance.| Use the **Left shift** and **Right Shift** keys respectfully.|
 | Anchor | clicking the toggle button <img src="./temp icons/anchor icon.JPG" style="width:100px;height:25px"> will stop applying sail power on the boat so it stops | Click the **A** on the keyboard to toggle this button's effect.|
 |Man in the water drill|Click the little buoy <img src="./Assets/Textures/buoy.png"  style="width:20px;height:20px"> icon to "throw" a small lifesaver to mark a man in the water situation. Click on the thrown buoy to grab it back to the boat.|Click the **space** bar to toggle man in the water throw/grab action.|
 |Pause/Play the game| Click the <img src="./Assets/Textures/GameIcons/pause.jpg"  style="width:20px;height:20px"> icon to **pause** the game, and then the <img src="./Assets/Textures/GameIcons/play.jpg" style="width:20px;height:20px"> icon to **resume** it.| Click the **P** key to toggle pause/play modes.|
@@ -95,9 +95,9 @@ The third part of the game help information is a series of lessons with animated
 ## Versions and changes
 The current version 1.1 includes some changes in the GUI and keyboard:
 - The GUI size is kept relative to the resolution of the game screen and cannot be changed manually.
-- The zoom-in and out now has many levels that are applied with the keys used previously to change GUI widgets' size: the **+** and **-** keys, and the small buttons in the "Sailiung Control" box.
-- The **Z** button is not interpreted anymore and the respective button on the left side has been removed.
-- It is possible to remove the GUI altogether and use only keyboard shortcuts.
+- The zoom-in and zoom-out now has many levels that are applied with the keys used previously to change GUI widgets' size: the **+** and **-** keys, and also by the small buttons in the "Sailiung Control" box.
+- The "Zoom" button **Z** is not active anymore and the respective GUI button on the left side has been removed.
+- It is possible to remove the GUI altogether (via the toggle key **K** on the keyboard) and use only keyboard shortcuts.
 ## Contributing
 The project is presently private so contributions are limited.
 
