@@ -31,6 +31,9 @@ README.pdf
 # Visual Studio cache directory
 .vs/
 
+# Project specifics:
+Sailing-PC.zip
+
 # Gradle cache directory
 .gradle/
 
