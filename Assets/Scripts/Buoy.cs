@@ -25,7 +25,7 @@ public class Buoy : MonoBehaviour
     void Start()
     {
         ft = transform.Find("Circle"); // flag transform
-        Debug.Log("circle: " + ft);
+        Debug.Log(name + ": circle: " + ft);
         Vector3 size = GetComponent<Renderer>().bounds.size;
         buoySize = (size.x + size.y) / 2;
         if (ft != null) {
@@ -63,10 +63,10 @@ public class Buoy : MonoBehaviour
             //localScale.y *= b;
         }
         if (ft != null) {
-            Debug.Log("color of [" + transform.name + "]: " + flagColor.ToString());
+            // Debug.Log("color of [" + transform.name + "]: " + flagColor.ToString());
             if (flagColor.r != 0 || flagColor.g != 0 || flagColor.b != 0) {
                 ft.gameObject.SetActive(true);
-                float d = f * buoySize/4f;
+                float d = f * buoySize/6f;
                 ft.localPosition = new Vector3(0, d, 0);
                 //ft.localScale = new Vector3(1f,Math.Max(fsc, Math.Abs(d)/fs/2),1f);
             } else {
