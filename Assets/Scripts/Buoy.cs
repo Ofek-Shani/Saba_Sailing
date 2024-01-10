@@ -25,7 +25,7 @@ public class Buoy : MonoBehaviour
     void Start()
     {
         ft = transform.Find("Circle"); // flag transform
-        Debug.Log(name + ": circle: " + ft);
+        // Debug.Log(name + ": circle: " + ft);
         Vector3 size = GetComponent<Renderer>().bounds.size;
         buoySize = (size.x + size.y) / 2;
         if (ft != null) {

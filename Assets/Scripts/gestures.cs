@@ -86,6 +86,7 @@ public class gestures : MonoBehaviour
 
     BoatController boat() { return BoatController.Instance; }
     AdamBayam adamBayam() { return AdamBayam.Instance; }
+
     void Start()
     {
         pauseImg = pausePlayB.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
@@ -103,7 +104,6 @@ public class gestures : MonoBehaviour
 #endif
         CanvasAutoScale();
     }
-
     bool CtrlIsDown() {
         return Input.GetKeyDown(KeyCode.LeftControl);
     }

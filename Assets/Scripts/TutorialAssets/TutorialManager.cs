@@ -10,10 +10,9 @@ public class TutorialManager : MonoBehaviour
     public GameObject lessonTemplate, listContainer;
     public Button nextButton, prevButton, firstButton, listButton;
     public Text explanationT, chapterNameT;
-    public GameObject explanationP;
-
-    public LineRenderer arrowLR;
+    public GameObject explanationP;    
     public BoatController boat;
+    public Transform arrowsContainer;
 
     private int currentChapterIndex = -1, currentStepIndex = 0;
     // private GameObject currentTextBanner;
@@ -31,7 +30,7 @@ public class TutorialManager : MonoBehaviour
         firstButton.onClick.AddListener(FirstChapter);
         listButton.onClick.AddListener(ListChapters);
         explanationT = lessonTemplate.transform.GetChild(0).GetChild(0).GetComponent<Text>();
-        arrowLR = lessonTemplate.transform.GetChild(0).GetComponent<LineRenderer>();
+        arrowsContainer = lessonTemplate.transform.GetChild(0); //.GetComponent<LineRenderer>();
         listManager = listContainer.GetComponent<ListManager>();
         listContainer.transform.GetComponent<ListManager>().setup(chapters);
         LoadChapter(currentChapterIndex);

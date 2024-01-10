@@ -20,14 +20,10 @@ public class TutorialStep : MonoBehaviour
     void Start() {
         boat = BoatController.Instance;
     }
-
-
    private void ExecuteStep()
     {
         doAction();
     }
-
-
     public void doAction() {
         switch (stepAction) {
             case StepAction.MoveRudder: boat.startSliderDemo(BoatController.DemoKind.STEERING, _factor:factor,  _velocity: velocity); break;

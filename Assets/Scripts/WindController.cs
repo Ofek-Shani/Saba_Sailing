@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 public class WindController : MonoBehaviour
 {
-    [SerializeField] public float windDirection = 0;
+    [Range(0,360)] public float windDirection = 0;
     public float windStrength = 10f;
     ParticleSystem pt;
     ParticleSystem.EmissionModule emissionModule;

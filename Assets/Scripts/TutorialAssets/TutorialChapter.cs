@@ -1,18 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TreeEditor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 [Serializable]
 public class TutorialChapter : MonoBehaviour // ScriptableObject
 {
     [SerializeField] public string chapterName;
     public TargetObject[] targetObjects;
+    public GameObject arrowPrefab;
     public string explanationText;
     public TutorialStep[] steps;
-    private LineRenderer arrowLR;
+    private Transform arrowsContainer;
     private Text explanationT;
     private GameObject explanationP;
     private Image explanationI;
@@ -20,29 +24,37 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
     private int stepIndex = -1;
     TutorialStep currentStep;
     TargetObject[] usedTargetObjects;
+    LineRenderer[] arrowsLR;
+    Vector3[] _points = null;
+    List<GameObject> arrows = new List<GameObject>(); 
+    int numArrows = 0;
+
     internal void clear(TutorialManager mgr)
     {
         Debug.Log("Clearing " + chapterName);
         CancelInvoke("switchStep");
         mgr.chapterNameT.text = "Select a lesson to view";
         mgr.explanationT.gameObject.SetActive(false);
-        usedTargetObjects = null;
-        mgr.arrowLR.positionCount = 0;
-        _points = new Vector3[0];
-        mgr.arrowLR.SetPositions(_points);
+        clearArrows();
         if (currentStep != null) currentStep.clear();
         currentStep = null;
         stepIndex = -1;
 
     }
 
+    void clearArrows() {
+        usedTargetObjects = null;
+        foreach (GameObject arrow in arrows) arrow.SetActive(false);
+        numArrows = 0;
+        _points = new Vector3[0];
+    }
     internal void load(TutorialManager mgr)
     {
         Debug.Log("Loading " + chapterName);
         mgr.chapterNameT.text = chapterName;
         mgr.explanationT.text = explanationText;
         mgr.explanationT.gameObject.SetActive(true);
-        arrowLR = mgr.arrowLR;
+        arrowsContainer = mgr.arrowsContainer;
         explanationT = mgr.explanationT;
         explanationP = mgr.explanationP;
         explanationI = explanationP.GetComponent<Image>();
@@ -55,12 +67,12 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
 
     void switchStep() {
         if (steps.Length == 0) return;
+        clearArrows();
         stepIndex = (stepIndex++)%steps.Length;
         if (currentStep != null) currentStep.clear();
         stepIndex = (++stepIndex)%steps.Length;
         TutorialStep step = steps[stepIndex];
         usedTargetObjects = step.targetObjects;
-        _points = null;
         explanationT.text = "";
         StartCoroutine(AnimateStepSwitch(step.explanationText));
         step.doAction();
@@ -86,85 +98,55 @@ public class TutorialChapter : MonoBehaviour // ScriptableObject
     widthCurve: [0,1] [0.3333333,0.1] [0.6666667,1] [1,0.1] [1.333333,1] 
     points: [-5.740664,-4.577865] [2.384186E-07,-2.5] [-5.740664,-4.577865] [13.2942,-6.647789] 
     */
-    Vector3 lociFromTargetObject(TargetObject to) {
-        Vector3 r = worldPosition(to.targetObject, to.targetIsCanvas);
-        r.z = 0;
-        return r;
-    }
-
-    public void drawArrows() {
-        // logVector<TargetObject>(usedTargetObjects);
-        if (usedTargetObjects == null || usedTargetObjects.Length == 0) return;
-        List<Vector3> pointsL = new List<Vector3>();
-        List<float> lengthsL = new List<float>();
-        Vector3 pivot = worldPosition(explanationT.gameObject, true);
-        AnimationCurve widthCurve = new AnimationCurve();
-        // Set the curve keys
-        String r = "widthCurve: ", s = "points: ";
-        float length = 0;
-        int i = 0; 
-        bool usePivot = false;
-        Vector3 lastP = Vector3.zero;
-        bool starting = true;
-        if (usedTargetObjects.Length == 1) {
-            Vector3 point = lociFromTargetObject(usedTargetObjects[0]);
-            pointsL.Add(point);
-            pointsL.Add(pivot);
-            length = Vector3.Distance(pivot, point);
-            lengthsL.Add(length);
-        } else {
-            while (i < usedTargetObjects.Length) {
-                Vector3 newP = usePivot ? pivot : lociFromTargetObject(usedTargetObjects[i]);
-                if (!usePivot) {i++;}
-                usePivot = !usePivot;
-                pointsL.Add(newP);
-                if (!starting) {
-                    float l = Vector3.Distance(newP, lastP);
-                    lengthsL.Add(l);
-                    length += l;
-                    lastP = newP;
-                }
-                starting = false;
-            }
-        }
-        Vector3[] points = pointsL.ToArray();
-        if (samePoints(points)) return;
-        _points = points;
-
-        float[] lengths = lengthsL.ToArray();
-        widthCurve.AddKey(0, 0.1f);
-        usePivot = true;
-        float stretch = 0;
-        logVector(lengths);
-        r+= "[0, 0.1f] ";
-        s+= "[" + points[0].x + ", " + points[0].y + "]";
-        for (i=1; i < points.Length; i++) {
-            stretch += lengths[i-1];
-            float f = stretch/length;
-            float w = usePivot? 1f : 0.1f;
-            widthCurve.AddKey(f, w);
-            r+= "[" + f + "," + w + "] ";
-            s += "["+points[i].x+ "," + points[i].y + "] ";
-            usePivot = !usePivot;
-        }
-        // void makeArrow(LineRenderer lineRenderer, Vector3 startPoint, Vector3 endPoint, float w, Color line, Color fill) {
-        // logVector<Vector3>(points);
-        // Debug.Log(r + "\n" + s + "\n==================");
-        arrowLR.positionCount = points.Length;
-        arrowLR.SetPositions(points);
-        arrowLR.widthCurve = widthCurve; 
-    }
-
     Vector3 worldPosition(GameObject obj, bool forCanvas = true) {
         Vector3 position = obj.transform.position;
         Vector3 result = forCanvas ? Camera.main.ScreenToWorldPoint(position) : position;
         result.z = 0;
         return result;
     }
-    Vector3[] _points = null;
-    bool samePoints(Vector3[] points) {
+
+    Vector3 lociFromTargetObject(TargetObject to) {
+        Vector3 r = worldPosition(to.targetObject, to.targetIsCanvas);
+        r.z = 0;
+        return r;
+    }
+
+    List <LineRenderer> lrs = new List<LineRenderer>();
+    void setArrows(int num) {
+        numArrows = num;
+        for (int i = arrows.Count; i < num; i++) {
+            GameObject arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
+            arrows.Add(arrow);
+            lrs.Add(arrow.GetComponent<LineRenderer>());
+        }
+    }
+    public void drawArrows() {
+        if (usedTargetObjects == null || usedTargetObjects.Length == 0) return;
+        //LineRenderer[] lrs = arrowsContainer.GetComponents<LineRenderer>();
+        // Ensure we have enough line renderers for the arrows.
+        //if (lrs.Length < usedTargetObjects.Length) {
+        //    for (int lri = lrs.Length; lri < usedTargetObjects.Length; lri++) 
+        //        lrs.Append(new LineRenderer());
+        //        arrowsContainer.AddComponent<LineRenderer>();
+        //    lrs = arrowsContainer.GetComponents<LineRenderer>();
+        //}
+        setArrows(usedTargetObjects.Length);
+        Vector3 pivot = worldPosition(explanationT.gameObject, true);
+        int i = -1; 
+        while (++i < numArrows) { //Math.Min(lrs.Length, usedTargetObjects.Length)) {
+            Vector3 endP = lociFromTargetObject(usedTargetObjects[i]);
+            lrs[i].positionCount = 2;
+            lrs[i].SetPosition(0, pivot);
+            lrs[i].SetPosition(1, endP);
+            lrs[i].startWidth = 1f;
+            lrs[i].endWidth = 0.1f;
+            arrows[i].SetActive(true);
+        }
+    }
+
+    bool samePoints(TargetObject[] points) {
         if (points == null || _points == null || points.Length != _points.Length) return false;
-        for (int i=0; i < points.Length; i++) if (_points[i] != points[i]) return false;
+        for (int i=0; i < points.Length; i++) if (_points[i] != lociFromTargetObject(points[i])) return false;
         return true;
     }
 

@@ -7,6 +7,7 @@ using System;
 using System.Data;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine.Rendering;
+using UnityEditor.Experimental.GraphView;
 // (c) 2023 copyright Uri Shani, Ofek Shani
 
 
@@ -30,14 +31,15 @@ public class BoatController : MonoBehaviour
     public Button mainSailButton;
     public GameObject frontSailPanel;
     public GameObject mainSailPanel;
-    public float demoVelocityMagnitude = 3f;
+    public float demoVelocityMagnitude = 3f, demoSailForceMagnitude = 3f;
     private Image mainSailPanelImage, frontSailPanelImage;
     private Color mainSailPanelRestColor, frontSailPanelRestColor;
     private SailController.Animation hitSteeringAnimation = new SailController.Animation(0.1f, 1f);
 
 
+    // Demo simulation state saving variables:
     private bool demoMode = false;
-    private float demoVelocity = 0;
+    private float demoVelocity = 0, saveWindDirection;
 
     [SerializeField] GameObject rudder, keel;
     SpriteRenderer rudderSpr, keelSpr;
@@ -53,9 +55,6 @@ public class BoatController : MonoBehaviour
 
     public enum DemoKind {STEERING=0, SAILS=1, KEEL=2}; 
     Slider[] sliderMap;
-    public BoatController() {
-        sliderMap  = new Slider[] {steeringSlider, sailSlider, keelSlider};
-    }
     // CONSTANTS FOR BOAT
     //[Range(0.0f, 10.0f)]
     //float WATER_DENSITY = 50, BOAT_MASS = 1;
@@ -135,6 +134,7 @@ public class BoatController : MonoBehaviour
 
     void Start()
     {
+        sliderMap  = new Slider[] {steeringSlider, sailSlider, keelSlider};
         SaveStatus();
         MainSail = transform.GetChild(1).gameObject.GetComponent<SailController>();
         FrontSail = transform.GetChild(0).gameObject.GetComponent<SailController>(); 
@@ -256,7 +256,7 @@ class KeyControl
         sliderDemo = new SliderDemo(this, slider, startPos, endPos, cycles, factor);
     }
     public void stopSliderDemo() {
-        sliderDemo = null;
+        sliderDemo = null;    
         Reset();
     }
     class SliderDemo 
@@ -397,7 +397,7 @@ class KeyControl
     {
         float boatDirection = transform.rotation.eulerAngles.z;
         float windDirection = wc.windDirection;
-
+        if (demoMode) wc.windDirection = boatDirection * (demoVelocity > 0 ? 1 : -1);
         Vector2 boatForwardDirection = new Vector2(Mathf.Cos(rad(boatDirection)), Mathf.Sin(rad(boatDirection))) ; //(Quaternion.AngleAxis(boatDirection, Vector3.forward) * Vector2.up).normalized;
         Vector2 boatLateralDirection = new Vector2(boatForwardDirection.y, -boatForwardDirection.x);
         windBoatAngleN = getWindBoatAngleN();  //- boatDirection); normalized so wind blows to the right is > 0, and wind to the left is < 0
@@ -434,19 +434,6 @@ class KeyControl
         rb.angularDrag = angularDrag;
         float drag = (1f + LATERAL_DRAG_FACTOR[keelStatus] / 10f + Mathf.Abs(Mathf.Sin(rad(rudderAngleN))) * 0.5f) * 0.15f ;
         rb.drag = drag;
-        // Water Drag Force on the boat
-
-        //ApplySteeringForce();
-        // CalculateSailShape(mainForce, frontForce);
-        // Boat rotation and Torque (steering)
-
-        /*
-         * boatText.text = "F: " + forwardForceVector.magnitude.ToShortString() + 
-            "/" + lateralForceVector.magnitude.ToShortString() + 
-            ", V: " + forwardVelocity.ToShortString() + 
-            "/" + lateralVelocity.ToShortString() +
-            ", tQ: " + torque.ToShortString() + ", aDrag: " + angularDrag.ToShortString() + ", drag: " + drag.ToShortString(); //" / " + forwardForceVector.ToShortString() + " - " + lateralForceVector.ToShortString() + ". Velocity: " + rb.velocity.ToShortString() + " - " + rb.angularVelocity.ToShortString();
-        */
         if (angDvalueText != null)
         {
             angDvalueText.text = angularDrag.ToShortString();
