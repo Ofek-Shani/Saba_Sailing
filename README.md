@@ -56,7 +56,7 @@ The game has GUI controls as well as short-hand keyboard keys to manage the diff
 
 | Part | GUI | Keyboard (for the PC version) |
 | -------- | -------- | -------- |
-|Rudder | Move horizontal slider left and right | Use **left arrow** and **right arrow** keys.|
+|Rudder | Move horizontal slider left and right to steer the boat | Use **left arrow** and **right arrow** keys.|
 |Sail Tension| Move left slider up or down| Use **up arrow** and **down arrow** keys.|
 |Keel position: up, middle or full| Move the 3 position vertical slider on right| Use the **PgUp** and **PgDown** keys.|
 |Sail selection| Two buttons <img src="./temp icons/sails selection icons.JPG"  style="width:45px;height:20px"> on the bottom left screen allows to select the front sail (FS) or main sail (MS) to be affected by the sail tension slider and keys. If both are **not** selected, the slider and keys control both sails together. | Use the **W** key to select the front sail, and **S** key for the main sail.|
