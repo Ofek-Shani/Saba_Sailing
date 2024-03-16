@@ -24,7 +24,7 @@ public class WaterController : MonoBehaviour
     //texture.GetPixels()[texture.width-1]; //colors[texture.width * texture.height /2 + texture.width /2];
     void Start()
     {
-        wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
+        wc = GameObject.Find("Wind").GetComponent<WindController>();
         direction = wc.windDirection * Mathf.Deg2Rad;
         speed = wc.windStrength / 5f;
 

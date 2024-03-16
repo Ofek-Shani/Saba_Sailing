@@ -138,7 +138,7 @@ public class BoatController : MonoBehaviour
         SaveStatus();
         MainSail = transform.GetChild(1).gameObject.GetComponent<SailController>();
         FrontSail = transform.GetChild(0).gameObject.GetComponent<SailController>(); 
-        wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
+        wc = GameObject.Find("Wind").GetComponent<WindController>();
         rb = GetComponent<Rigidbody2D>();
         rb.angularDrag = ANGULAR_DRAG;
         rb.drag = DRAG_FACTOR;
@@ -364,7 +364,7 @@ class KeyControl
     }
 
     void SetSteering(float value)
-    {
+    {   value = Mathf.Round(value * 3f)/3f; // 24 steps in each direction
         rudderAngle = value * 10; // value is -8 to +8 meaning -80 deg, to +80 deg.
         // Debug.Log("rudderAngle: " + rudderAngle);
         steeringSliderValue.text = rudderAngle.ToString("F0");

@@ -23,8 +23,10 @@ public class SailController : MonoBehaviour
         sailAngle = transform.localRotation.eulerAngles.z;
         sailAngleN = normalize(sailAngle);
         sailSpr = GetComponent<SpriteRenderer>();
-        wc = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindController>();
-        bc = GameObject.FindGameObjectWithTag("Boat").GetComponent<BoatController>();
+        GameObject go = GameObject.Find("Wind");
+        wc = go.GetComponent<WindController>();
+        go = GameObject.Find("Boat");
+        bc = go.GetComponent<BoatController>();
         sr = GetComponent<SpriteRenderer>();
         sailShape = new Animation(0.05f, 0.5f); // one second period, minimum change = 0.1
         float x = distance;
@@ -205,6 +207,7 @@ public class SailController : MonoBehaviour
         const float minScale = 0.45f;
         float scaleY = sign(sailAngleN) * sign(forceN) * 
             Mathf.Clamp(Mathf.Abs(forceN), minScale, 1f);
+        //Debug.Log(sailShape);    
         sailShape.set(scaleY);
         scaleY = sailShape.Value;
         transform.localScale = new Vector3(transform.localScale.x, scaleY, 1);

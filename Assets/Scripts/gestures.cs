@@ -27,43 +27,62 @@ public class gestures : MonoBehaviour
 
     public class KeyTracking
     {
+        float clickTimeout = 0.15f, firstClickTimeout = 0.35f;
+        float lastClick = 0;
         KeyCode keyCode;
         bool stateUp = true;
-        bool trace = false;
-        public KeyTracking(KeyCode keyCode_, bool trace_ = false)
+        bool trace = false, multi = false, multiActive = false;
+        public KeyTracking(KeyCode keyCode_, bool trace_ = false, bool multi_ = false)
         {
             keyCode = keyCode_;
             trace = trace_;
+            multi = multi_;
         }
-        public bool clicked()
+        public bool Clicked()
         {
             bool keyDown = Input.GetKeyDown(keyCode);
-            if (trace && keyDown) {
-                Debug.Log("Key [" + keyCode + "]: " + Input.GetKeyDown(keyCode) + ". state: " + stateUp);
+            bool keyUp = Input.GetKeyUp(keyCode);
+            if (trace ){//&& keyDown) {
+                Debug.Log("Key [" + keyCode + "]: " + keyDown + "/" + keyUp);
             }
-            if (keyDown)
-            {
-                if (stateUp)
-                {
-                    stateUp = false;
-                    return true;
-                }
-                else return false;
-            }
-            else
-            {
+            if (!multi) return keyDown;
+            // multi mode key type:
+            if (keyUp) {
                 stateUp = true;
+                multiActive = false;
+                lastClick = 0;
                 return false;
             }
+            if (keyDown) {
+                stateUp = false;
+                lastClick = Time.time; 
+                return true;
+            }
+            // key not changing its stat. 
+            // if it was not released yet (it is still down) work with the time:
+            if (!stateUp) { // it is still pressed down
+                float deltaTime = Time.time - lastClick;
+                if (!multiActive && deltaTime > firstClickTimeout) {
+                    multiActive = true;
+                    deltaTime = Mathf.Clamp(deltaTime, 0, firstClickTimeout + clickTimeout - 0.05f);
+                    lastClick = Time.time - (deltaTime - firstClickTimeout);
+                    return true;
+                } else if (multiActive && deltaTime > clickTimeout) {
+                    deltaTime = Mathf.Clamp(deltaTime, 0, 2*clickTimeout - 0.05f);
+                    lastClick = Time.time - (deltaTime - clickTimeout);
+                    return true;
+                } else
+                    return false;
+            }
+            return false;
         }
-
     }
     KeyTracking hitLeftK = new KeyTracking(KeyCode.LeftShift),
         hitRightK = new KeyTracking(KeyCode.RightShift),
-        sailsUpK = new KeyTracking(KeyCode.UpArrow),
-        sailsDownK = new KeyTracking(KeyCode.DownArrow),
-        steeringLeft = new KeyTracking(KeyCode.LeftArrow),
-        steeringRight = new KeyTracking(KeyCode.RightArrow),
+        sailsUpK = new KeyTracking(KeyCode.UpArrow, false, true),
+        sailsDownK = new KeyTracking(KeyCode.DownArrow, false, true),
+        steeringLeft = new KeyTracking(KeyCode.LeftArrow, false, true),
+        steeringRight = new KeyTracking(KeyCode.RightArrow, true, true),
         adamBayamK = new KeyTracking(KeyCode.Space),
         plusK = new KeyTracking(KeyCode.Equals),
         minusK = new KeyTracking(KeyCode.Minus),
@@ -120,7 +139,7 @@ public class gestures : MonoBehaviour
     }
     void TestExitRequested()
     { // exits the game if CTRL-C is clicked.
-        if (exitK.clicked() && CtrlIsDown())
+        if (exitK.Clicked() && CtrlIsDown())
         {
             doExit();                   
         }
@@ -139,9 +158,9 @@ public class gestures : MonoBehaviour
         // Debug.Log("escape: " + Input.GetKey(KeyCode.Escape) + ", return: " + Input.GetKey(KeyCode.Return));
         if (confirm().active && !confirm().done) return;
         TestExitRequested();
-        if (hitLeftK.clicked()) hitLeft.onClick.Invoke();
-        if (hitRightK.clicked()) hitRight.onClick.Invoke();
-        if (adamBayamK.clicked())
+        if (hitLeftK.Clicked()) hitLeft.onClick.Invoke();
+        if (hitRightK.Clicked()) hitRight.onClick.Invoke();
+        if (adamBayamK.Clicked())
         {
             AdamBayam ab = adamBayam();
             if (ab.adamBayamIsOn)
@@ -155,25 +174,25 @@ public class gestures : MonoBehaviour
                 ab.adamBayamIsOn = true;
             }
         }
-        if (plusK.clicked()) doZoom(+10f);
-        if (minusK.clicked()) doZoom(-10f);
-        if (sailsUpK.clicked()) sails.value = Mathf.Max(sails.minValue, sails.value - 1);
-        if (sailsDownK.clicked()) sails.value = Mathf.Min(sails.maxValue, sails.value + 1);
-        if (steeringLeft.clicked()) steering.value = Mathf.Max(steering.minValue, steering.value - 1);
-        if (steeringRight.clicked()) steering.value = Mathf.Min(steering.maxValue, steering.value + 1);
-        if (keelUpK.clicked()) keel.value = Mathf.Max(keel.minValue, keel.value - 1);
-        if (keelDownK.clicked()) keel.value = Mathf.Min(keel.maxValue, keel.value + 1);
+        if (plusK.Clicked()) doZoom(+10f);
+        if (minusK.Clicked()) doZoom(-10f);
+        if (sailsUpK.Clicked()) sails.value = Mathf.Max(sails.minValue, sails.value - 1);
+        if (sailsDownK.Clicked()) sails.value = Mathf.Min(sails.maxValue, sails.value + 1);
+        if (steeringLeft.Clicked()) steering.value = Mathf.Max(steering.minValue, steering.value - 1f/3);
+        if (steeringRight.Clicked()) steering.value = Mathf.Min(steering.maxValue, steering.value + 1f/3);
+        if (keelUpK.Clicked()) keel.value = Mathf.Max(keel.minValue, keel.value - 1);
+        if (keelDownK.Clicked()) keel.value = Mathf.Min(keel.maxValue, keel.value + 1);
         // if (zoomK.clicked() && CtrlIsDown()) { doZoom(-10f);}
         // if (zoomK.clicked() && !CtrlIsDown()) { doZoom(10f);}
-        if (followK.clicked())  doFollow(); 
-        if (togglePausePlayK.clicked()) doPausePlay();
-        if (restartK.clicked()) doRestart();
-        if (showHideHelpK.clicked()) doHelp();
-        if (escK.clicked()) doEscape();
-        if (enterK.clicked()) doEnter();
-        if (f11K.clicked()) doF11();
-        if (ancorK.clicked()) boat().ToggleAnchor();
-        if (toggleCanvasK.clicked()) toggleCanvas();
+        if (followK.Clicked())  doFollow(); 
+        if (togglePausePlayK.Clicked()) doPausePlay();
+        if (restartK.Clicked()) doRestart();
+        if (showHideHelpK.Clicked()) doHelp();
+        if (escK.Clicked()) doEscape();
+        if (enterK.Clicked()) doEnter();
+        if (f11K.Clicked()) doF11();
+        if (ancorK.Clicked()) boat().ToggleAnchor();
+        if (toggleCanvasK.Clicked()) toggleCanvas();
     }
 
     public class Confirm {
