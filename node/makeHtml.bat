@@ -1,3 +1,4 @@
+echo on
 cd node
 npm i
 cd ..
