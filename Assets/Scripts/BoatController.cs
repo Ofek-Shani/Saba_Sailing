@@ -19,7 +19,7 @@ public class BoatController : MonoBehaviour
     // enum BoatPart { KEEL, RUDDER, FRONTSAIL, MAINSAIL };
     // BoatPart boatPart = BoatPart.KEEL;
     public enum KeelStatus { UP, HALFWAY, DOWN };
-    public KeelStatus keelStatus = KeelStatus.UP;
+    public KeelStatus keelStatus = KeelStatus.DOWN;
     public Text sailSliderValue;
     public TMP_Text sailSliderTitle;
     public Slider sailSlider;
@@ -135,7 +135,6 @@ public class BoatController : MonoBehaviour
     void Start()
     {
         sliderMap  = new Slider[] {steeringSlider, sailSlider, keelSlider};
-        SaveStatus();
         MainSail = transform.GetChild(1).gameObject.GetComponent<SailController>();
         FrontSail = transform.GetChild(0).gameObject.GetComponent<SailController>(); 
         wc = GameObject.Find("Wind").GetComponent<WindController>();
@@ -158,7 +157,8 @@ public class BoatController : MonoBehaviour
         frontSailPanelImage = frontSailPanel.GetComponent<Image>();
         mainSailPanelRestColor = mainSailPanelImage.color;
         frontSailPanelRestColor = frontSailPanelImage.color;
-
+        SetKeel(keelSlider);
+        SaveStatus();
 }
 
 // Update is called once per frame
@@ -206,8 +206,11 @@ class KeyControl
         bool setAsMain = useMain, setAsFront = useFront;
         if (!setAsMain && !setAsFront) setAsMain = setAsFront = true;
         simulateTension = true; // if sailSlider changes below, ignore the event calls to SetSailTension below.
-        if (setAsMain && setAsFront) { sailSliderTitle.text = "SAILS"; sailSlider.value = Mathf.Clamp((MainSail.SailTension + FrontSail.SailTension) / 2f, 
-            sailSlider.minValue, sailSlider.maxValue); }
+        if (setAsMain && setAsFront) { 
+            sailSliderTitle.text = "SAILS"; 
+            sailSlider.value = Mathf.Clamp((MainSail.SailTension + FrontSail.SailTension) / 2f, 
+                sailSlider.minValue, sailSlider.maxValue); 
+        }
         else if (setAsMain) { sailSliderTitle.text = "MAIN"; sailSlider.value = MainSail.SailTension; }
         else if (setAsFront) { sailSliderTitle.text = "FRONT"; sailSlider.value = FrontSail.SailTension; }
         simulateTension = false; // stop ignoring.

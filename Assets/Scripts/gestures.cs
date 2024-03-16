@@ -32,7 +32,7 @@ public class gestures : MonoBehaviour
         KeyCode keyCode;
         bool stateUp = true;
         bool trace = false, multi = false, multiActive = false;
-        public KeyTracking(KeyCode keyCode_, bool trace_ = false, bool multi_ = false)
+        public KeyTracking(KeyCode keyCode_, bool multi_ = false, bool trace_ = false)
         {
             keyCode = keyCode_;
             trace = trace_;
@@ -79,10 +79,10 @@ public class gestures : MonoBehaviour
     }
     KeyTracking hitLeftK = new KeyTracking(KeyCode.LeftShift),
         hitRightK = new KeyTracking(KeyCode.RightShift),
-        sailsUpK = new KeyTracking(KeyCode.UpArrow, false, true),
-        sailsDownK = new KeyTracking(KeyCode.DownArrow, false, true),
-        steeringLeft = new KeyTracking(KeyCode.LeftArrow, false, true),
-        steeringRight = new KeyTracking(KeyCode.RightArrow, false, true),
+        sailsUpK = new KeyTracking(KeyCode.UpArrow, true),
+        sailsDownK = new KeyTracking(KeyCode.DownArrow, true),
+        steeringLeft = new KeyTracking(KeyCode.LeftArrow, true),
+        steeringRight = new KeyTracking(KeyCode.RightArrow, true),
         adamBayamK = new KeyTracking(KeyCode.Space),
         plusK = new KeyTracking(KeyCode.Equals),
         minusK = new KeyTracking(KeyCode.Minus),
