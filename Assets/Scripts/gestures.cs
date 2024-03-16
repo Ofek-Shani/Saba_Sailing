@@ -82,7 +82,7 @@ public class gestures : MonoBehaviour
         sailsUpK = new KeyTracking(KeyCode.UpArrow, false, true),
         sailsDownK = new KeyTracking(KeyCode.DownArrow, false, true),
         steeringLeft = new KeyTracking(KeyCode.LeftArrow, false, true),
-        steeringRight = new KeyTracking(KeyCode.RightArrow, true, true),
+        steeringRight = new KeyTracking(KeyCode.RightArrow, false, true),
         adamBayamK = new KeyTracking(KeyCode.Space),
         plusK = new KeyTracking(KeyCode.Equals),
         minusK = new KeyTracking(KeyCode.Minus),
