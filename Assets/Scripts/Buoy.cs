@@ -24,13 +24,13 @@ public class Buoy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ft = transform.Find("Circle"); // flag transform
+        //ft = transform.Find("Circle"); // flag transform
         // Debug.Log(name + ": circle: " + ft);
         Vector3 size = GetComponent<Renderer>().bounds.size;
         buoySize = (size.x + size.y) / 2;
         if (ft != null) {
             fr = ft.GetComponent<SpriteRenderer>(); // flag renderer
-            fs = fr.bounds.size.y/2f; // flad radius in y
+            fs = fr.bounds.size.y/2f; // flag radius in y
             fsc = ft.localScale.y;    // flag orig scale in y
         }
         rb = GetComponent<Rigidbody2D>();
