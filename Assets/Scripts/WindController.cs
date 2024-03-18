@@ -24,9 +24,18 @@ public class WindController : MonoBehaviour
     }
 
     // Start is called before the first frame update
+    AnimationCurve sizeCurve;
     void Start()
     {
         pt = GetComponent<ParticleSystem>();
+        // Set the custom size curve over the lifetime
+        AnimationCurve lifetimeCurve = new AnimationCurve();
+        ParticleSystem.SizeOverLifetimeModule soltM = pt.sizeOverLifetime;
+        lifetimeCurve.AddKey(0f, .3f);
+        lifetimeCurve.AddKey(0.33f, 1f);
+        lifetimeCurve.AddKey(0.67f, 1f);
+        lifetimeCurve.AddKey(1f, .3f);
+        soltM.size = new ParticleSystem.MinMaxCurve(1f, lifetimeCurve);
         emissionModule = pt.emission;
         //Debug.Log("enmission Module: ");
         //Debug.Log(emissionModule);
@@ -54,7 +63,10 @@ public class WindController : MonoBehaviour
         for (int i = 0; i < particleCount; i++)
         {
             particles[i].velocity = velocity;
-            particles[i].rotation = 90f;
+            Color32 c = particles[i].GetCurrentColor(pt);
+            c.a = 128;
+            //particles[i].SetCurrentColor(c);
+            //particles[i].rotation = windDirection;
         }
         
         // Debug.Log("boat: " + boatDirection.ToShortString() + ", wdr " + (wdr*Mathf.Rad2Deg).ToShortString()); //Debug.Log(windStrength);
